@@ -1,0 +1,503 @@
+ 0: cim 0
+ 1: isp
+ 2: __printc_no_syscall("B", r0)
+ 4: __printc_no_syscall("O", r0)
+ 6: __printc_no_syscall("O", r0)
+ 8: __printc_no_syscall("T", r0)
+ a: ldi r0, 0b0001
+ b: wsr COPY_MODE, r0
+ c: ldi r1, 0
+ d: wsr TWO_TMP, r1
+ e: ldr r1, [r0]
+ f: regcall [r1]
+ 10: sysret
+ 11: cim 1
+ 12: call [k_prepare_svcids]
+ 13: call [k_prepare_pgrm_start_ids]
+ 14: ldi r0, 1
+ 15: push r0
+ 16: jmp [load_rom]
+ 17: ldi r0, k_getc
+ 18: st [k_services.getc], r0
+ 19: ldi r0, k_putc
+ 1a: st [k_services.putc], r0
+ 1b: ldi r0, k_puthex8
+ 1c: st [k_services.puthex8], r0
+ 1d: ldi r0, k_puts
+ 1e: st [k_services.puts], r0
+ 1f: ldi r0, k_readline
+ 20: st [k_services.readline], r0
+ 21: ldi r0, k_cls
+ 22: st [k_services.cls], r0
+ 23: ldi r0, k_store8
+ 24: st [k_services.store8], r0
+ 25: ldi r0, k_load8
+ 26: st [k_services.load8], r0
+ 27: ldi r0, k_cmp_strings
+ 28: st [k_services.cmp_strings], r0
+ 29: ldi r0, k_save_regs
+ 2a: st [k_services.save_regs], r0
+ 2b: ldi r0, k_load8_reg
+ 2c: st [k_services.load8_reg], r0
+ 2d: ldi r0, k_store8_reg
+ 2e: st [k_services.store8_reg], r0
+ 2f: ret
+ 30: ldi r0, pgrm_start_addrs.terminal.lo8_bits
+ 31: st [pgrm_start_addrs.terminal.table_addr], r0
+ 32: ret
+ 33: getc()
+ 34: ret
+ 35: putc()
+ 37: ret
+ 38: pop r0
+ 39: mov r1, r0
+ 3a: ldi r2, 0b00001111
+ 3b: and r0, r2
+ 3c: ldi r2, 0b11110000
+ 3d: and r1, r2
+ 3e: ldi r2, 0x04
+ 3f: wsr SHIFT_AMT, r2
+ 40: shr r1
+ 41: ldi r2, 0x0a
+ 42: cmp r0, r2
+ 43: juge [.conv_hex_let_lower]
+ 44: ldi r3, "0"
+ 45: add r0, r3
+ 46: jmp [.upper]
+ 47: ldi r3, "a" - 0x0a
+ 48: add r0, r3
+ 49: cmp r1, r2
+ 4a: juge [.conv_hex_let_upper]
+ 4b: ldi r3, "0"
+ 4c: add r1, r3
+ 4d: jmp [.printhex]
+ 4e: ldi r3, "a" - 0x0a
+ 4f: add r1, r3
+ 50: mov r2, r0
+ 51: push r1
+ 52: call [k_putc]
+ 53: push r2
+ 54: call [k_putc]
+ 55: ldi r2, 1
+ 56: wsr SHIFT_AMT, r2
+ 57: ret
+ 58: pop r0
+ 59: pop r1
+ 5a: wsr TWO_TMP, r1
+ 5b: ldr r1, [r0]
+ 5c: ldi r2, 0
+ 5d: cmp r1, r2
+ 5e: jz [.print_end]
+ 5f: st [mmio.TERM_PUT_CHAR], r1
+ 60: ldi r2, 1
+ 61: add r0, r2
+ 62: jmp [.printing]
+ 63: ret
+ 64: pop r0
+ 65: pop r1
+ 66: ldi r2, 1
+ 67: wsr TWO_TMP, r2
+ 68: ldr r2, [r0]
+ 69: ldr r3, [r1]
+ 6a: cmp r2, r3
+ 6b: jnz [..strings_different]
+ 6c: ldi r4, 0
+ 6d: cmp r2, r4
+ 6e: jnz [..continue]
+ 6f: cmp r3, r4
+ 70: jz [..strings_same]
+ 71: jmp [..continue]
+ 72: ldi r2, 1
+ 73: add r0, r2
+ 74: add r1, r2
+ 75: jmp [.cmp_loop]
+ 76: ldi r0, 1
+ 77: ret
+ 78: ldi r0, 0
+ 79: ret
+ 7a: ret
+ 7b: ldi r0, 1
+ 7c: st [mmio.TERM_CLR], r0
+ 7d: ret
+ 7e: pop r0
+ 7f: pop r1
+ 80: pop r2
+ 81: wsr TWO_TMP, r2
+ 82: str [r1], r0
+ 83: ret
+ 84: pop r1
+ 85: pop r0
+ 86: wsr TWO_TMP, r0
+ 87: ldr r0, [r1]
+ 88: ret
+ 89: pop r2
+ 8a: ldi r3, 1
+ 8b: ldi r1, 2
+ 8c: cmp r1, r0
+ 8d: jnz [..is_reg_3]
+ 8e: cmp r3, r2
+ 8f: jz [...store_handler]
+ 90: ld r1, [0x202]
+ 91: ldr r0, [r1]
+ 92: ret
+ 93: ret
+ 94: ldi r1, 3
+ 95: cmp r1, r0
+ 96: jnz [..is_reg_4]
+ 97: cmp r3, r2
+ 98: jz [...store_handler]
+ 99: ldi r0, 0b10000001
+ 9a: wsr TST_LED, r0
+ 9b: ld r1, [0x203]
+ 9c: ldr r0, [r1]
+ 9d: ret
+ 9e: ret
+ 9f: ldi r1, 4
+ a0: cmp r1, r0
+ a1: jnz [..is_reg_5]
+ a2: cmp r3, r2
+ a3: jz [...store_handler]
+ a4: ldr r0, [r4]
+ a5: ret
+ a6: ret
+ a7: ldi r1, 5
+ a8: cmp r1, r0
+ a9: jnz [..is_reg_6]
+ aa: cmp r3, r2
+ ab: jz [...store_handler]
+ ac: ldr r0, [r5]
+ ad: ret
+ ae: ret
+ af: ldi r1, 6
+ b0: cmp r1, r0
+ b1: jnz [..is_reg_7]
+ b2: cmp r3, r2
+ b3: jz [...store_handler]
+ b4: ldr r0, [r6]
+ b5: ret
+ b6: ret
+ b7: ldi r1, 7
+ b8: cmp r1, r0
+ b9: jnz [..invalid]
+ ba: cmp r3, r2
+ bb: jz [...store_handler]
+ bc: ldr r0, [r7]
+ bd: ret
+ be: ret
+ bf: ldi r0, errors.BAD_REGISTER_ID
+ c0: wsr ERR_INFO, r0
+ c1: ret
+ c2: st [0x202], r2
+ c3: st [0x203], r3
+ c4: pop r0
+ c5: pop r1
+ c6: wsr TWO_TMP, r1
+ c7: ldi r1, 0
+ c8: push r1
+ c9: call [k__HELPER__reg_ladder]
+ ca: ld r2, [0x202]
+ cb: ld r3, [0x203]
+ cc: ret
+ cd: nop
+ ce: ret
+ cf: pop r0
+ d0: st [0x200], r0
+ d1: st [0x201], r1
+ d2: st [0x202], r2
+ d3: st [0x203], r3
+ d4: st [0x204], r4
+ d5: st [0x205], r5
+ d6: st [0x206], r6
+ d7: st [0x207], r7
+ d8: ret
+ d9: isp
+ da: pop r0
+ db: ldi r1, 0x050
+ dc: add r1, r0
+ dd: ldi r2, 0
+ de: wsr TWO_TMP, r2
+ df: ldr r2, [r1]
+ e0: ldi r1, pgrm_start_addrs.terminal.hi2_bits
+ e1: wsr TWO_TMP, r1
+ e2: wsr PGRM_START_ADDR, r2
+ e3: shl r0
+ e4: ldi r1, 1
+ e5: add r0, r1
+ e6: wsr COPY_MODE, r0
+ e7: ldi r0, term_addrs.string_pointers.prompt - 0x100
+ e8: ldi r1, 0b01
+ e9: push r1
+ ea: push r0
+ eb: syscall k_services.puts
+ ed: ret
+ ee: pop r4
+ ef: ldi r0, 0b10101010
+ f0: wsr TST_LED, r0
+ f1: ldi r0, term_addrs.string_pointers.error_template - 0x100
+ f2: ldi r1, 0b01
+ f3: push r1
+ f4: push r0
+ f5: syscall k_services.puts
+ f7: push r4
+ f8: syscall k_services.puthex8
+ fa: ret
+ fb: ldi r4, 0
+ fc: ldi r5, 1
+ fd: ldi r7, term_addrs.buffer_start - 0x100
+ fe: ldi r6, term_addrs.buffer_end - 0x100
+ ff: push r5
+ 100: push r7
+ 101: push r4
+ 102: syscall k_services.store8
+ 104: cmp r7, r6
+ 105: jz [.clear_done]
+ 106: add r7, r5
+ 107: jmp [.clearing]
+ 108: ldi r7, term_addrs.buffer_start - 0x100
+ 109: ret
+ 10a: syscall k_services.cls
+ 10c: call [print_prompt]
+ 10d: ret
+ 10e: syscall k_services.save_regs
+ 110: ldi r7, 0b10
+ 111: ldi r6, 0
+ 112: ldi r5, 1
+ 113: ldi r4, 8
+ 114: push r7
+ 115: push r6
+ 116: syscall k_services.load8
+ 118: push r0
+ 119: syscall k_services.puthex8
+ 11b: printc(" ", r3)
+ 11f: add r6, r5
+ 120: cmp r4, r6
+ 121: jnz [.print_regs]
+ 122: printc("\n", r0)
+ 126: call [print_prompt]
+ 127: ret
+ 128: ldi r7, 0x00
+ 129: ldi r6, 1
+ 12a: ldi r4, 1
+ 12b: push r6
+ 12c: push r7
+ 12d: syscall k_services.load8
+ 12f: mov r2, r0
+ 130: push r2
+ 131: syscall k_services.puthex8
+ 133: printc(" ", r1)
+ 137: add r7, r4
+ 138: jc [..are_we_finished]
+ 139: jmp [.pmemd_loop]
+ 13a: ldi r5, 0b10
+ 13b: cmp r6, r5
+ 13c: jnz [...need_pointer_inc]
+ 13d: printc("\n", r0)
+ 141: printc("\n", r0)
+ 145: call [r]
+ 146: ret
+ 147: add r6, r4
+ 148: jmp [.pmemd_loop]
+ 149: pop r0
+ 14a: call [print_prompt]
+ 14b: ret
+ 14c: deref_argp(arg1)
+ 153: ldi r4, 0b01
+ 154: mov r5, r0
+ 155: push r4
+ 156: push r5
+ 157: syscall k_services.load8
+ 159: mov r6, r0
+ 15a: ldi r0, 1
+ 15b: add r5, r0
+ 15c: push r4
+ 15d: push r5
+ 15e: syscall k_services.load8
+ 160: mov r7, r0
+ 161: call [print_prompt]
+ 162: ret
+ 163: deref_argp(arg1)
+ 16a: ldi r1, 0b01
+ 16b: push r1
+ 16c: push r0
+ 16d: syscall k_services.puts
+ 16f: printc("\n", r0)
+ 173: call [print_prompt]
+ 174: ret
+ 175: push_and_store(0x00, 0b01, ">")
+ 17d: push_and_store(0x01, 0b01, "\0")
+ 185: push_and_store(0x02, 0b01, "E")
+ 18d: push_and_store(0x03, 0b01, ":")
+ 195: push_and_store(0x04, 0b01, "\0")
+ 19d: push_and_store(0x05, 0b01, "c")
+ 1a5: push_and_store(0x06, 0b01, "\0")
+ 1ad: push_and_store(0x07, 0b01, "r")
+ 1b5: push_and_store(0x08, 0b01, "\0")
+ 1bd: push_and_store(0x09, 0b01, "p")
+ 1c5: push_and_store(0x0a, 0b01, "m")
+ 1cd: push_and_store(0x0b, 0b01, "\0")
+ 1d5: push_and_store(0x0c, 0b01, "p")
+ 1dd: push_and_store(0x0d, 0b01, "s")
+ 1e5: push_and_store(0x0e, 0b01, "h")
+ 1ed: push_and_store(0x0f, 0b01, "\0")
+ 1f5: push_and_store(0x10, 0b01, "p")
+ 1fd: push_and_store(0x11, 0b01, "o")
+ 205: push_and_store(0x12, 0b01, "p")
+ 20d: push_and_store(0x13, 0b01, "\0")
+ 215: push_and_store(0x14, 0b01, "s")
+ 21d: push_and_store(0x15, 0b01, "\0")
+ 225: push_and_store(0x16, 0b01, "l")
+ 22d: push_and_store(0x17, 0b01, "\0")
+ 235: push_and_store(0x18, 0b01, "r")
+ 23d: push_and_store(0x19, 0b01, "s")
+ 245: push_and_store(0x1a, 0b01, "\0")
+ 24d: push_and_store(0x1b, 0b01, "r")
+ 255: push_and_store(0x1c, 0b01, "a")
+ 25d: push_and_store(0x1d, 0b01, "\0")
+ 265: push_and_store(0x1e, 0b01, "e")
+ 26d: push_and_store(0x1f, 0b01, "c")
+ 275: push_and_store(0x20, 0b01, "\0")
+ 27d: syscall k_services.cls
+ 27f: ldi r7, term_addrs.buffer_start - 0x100
+ 280: call [print_prompt]
+ 281: syscall k_services.getc
+ 283: ldi r1, "\0"
+ 284: cmp r0, r1
+ 285: jz [.main_loop]
+ 286: ldi r1, 8
+ 287: cmp r0, r1
+ 288: jz [.backspace_handler]
+ 289: ldi r1, "\n"
+ 28a: cmp r0, r1
+ 28b: jz [.newline_handler]
+ 28c: ldi r1, 0b01
+ 28d: mov r6, r0
+ 28e: push r1
+ 28f: push r7
+ 290: push r0
+ 291: syscall k_services.store8
+ 293: ldi r0, 1
+ 294: add r7, r0
+ 295: push r6
+ 296: syscall k_services.putc
+ 298: jmp [.main_loop]
+ 299: mov r6, r0
+ 29a: ldi r1, 0b01
+ 29b: sub r7, r1
+ 29c: push r1
+ 29d: push r7
+ 29e: sub r1, r1
+ 29f: push r1
+ 2a0: syscall k_services.store8
+ 2a2: push r6
+ 2a3: syscall k_services.putc
+ 2a5: jmp [.main_loop]
+ 2a6: push r0
+ 2a7: syscall k_services.putc
+ 2a9: ldi r7, term_addrs.buffer_start - 0x100
+ 2aa: ldi r4, " "
+ 2ab: ldi r6, "\0"
+ 2ac: ldi r5, 1
+ 2ad: ldi r3, 0
+ 2ae: push r5
+ 2af: push r7
+ 2b0: syscall k_services.load8
+ 2b2: cmp r0, r4
+ 2b3: jz [...is_a_space]
+ 2b4: add r7, r5
+ 2b5: cmp r0, r6
+ 2b6: jz [.check_if_c]
+ 2b7: jmp [..test_for_command_end]
+ 2b8: ldi r1, "\0"
+ 2b9: push r5
+ 2ba: push r7
+ 2bb: push r1
+ 2bc: syscall k_services.store8
+ 2be: add r7, r5
+ 2bf: ldi r0, 0b10
+ 2c0: push r0
+ 2c1: ldi r0, 0x0a0
+ 2c2: add r0, r3
+ 2c3: push r0
+ 2c4: ldi r0, 1
+ 2c5: add r3, r0
+ 2c6: push r7
+ 2c7: syscall k_services.store8
+ 2c9: jmp [..test_for_command_end]
+ 2ca: ldi r7, term_addrs.buffer_start - 0x100
+ 2cb: ldi r1, term_addrs.string_pointers.cmds.c - 0x100
+ 2cc: push r1
+ 2cd: push r7
+ 2ce: syscall k_services.cmp_strings
+ 2d0: ldi r2, 0
+ 2d1: cmp r0, r2
+ 2d2: jnz [.check_if_r]
+ 2d3: call [c]
+ 2d4: call [clear_buffer]
+ 2d5: jmp [.main_loop]
+ 2d6: ldi r7, term_addrs.buffer_start - 0x100
+ 2d7: ldi r1, term_addrs.string_pointers.cmds.r - 0x100
+ 2d8: push r1
+ 2d9: push r7
+ 2da: syscall k_services.cmp_strings
+ 2dc: ldi r2, 0
+ 2dd: cmp r0, r2
+ 2de: jnz [.check_if_pm]
+ 2df: push r0
+ 2e0: call [r]
+ 2e1: call [clear_buffer]
+ 2e2: jmp [.main_loop]
+ 2e3: ldi r7, term_addrs.buffer_start - 0x100
+ 2e4: ldi r1, term_addrs.string_pointers.cmds.pm - 0x100
+ 2e5: push r1
+ 2e6: push r7
+ 2e7: syscall k_services.cmp_strings
+ 2e9: ldi r2, 0
+ 2ea: cmp r0, r2
+ 2eb: jnz [.check_if_pop]
+ 2ec: push r0
+ 2ed: call [pm]
+ 2ee: call [clear_buffer]
+ 2ef: jmp [.main_loop]
+ 2f0: ldi r7, term_addrs.buffer_start - 0x100
+ 2f1: ldi r1, term_addrs.string_pointers.cmds.pop - 0x100
+ 2f2: push r1
+ 2f3: push r7
+ 2f4: syscall k_services.cmp_strings
+ 2f6: ldi r2, 0
+ 2f7: cmp r0, r2
+ 2f8: jnz [.check_if_psh]
+ 2f9: call [pop]
+ 2fa: call [clear_buffer]
+ 2fb: jmp [.main_loop]
+ 2fc: ldi r7, term_addrs.buffer_start - 0x100
+ 2fd: ldi r1, term_addrs.string_pointers.cmds.psh - 0x100
+ 2fe: push r1
+ 2ff: push r7
+ 300: syscall k_services.cmp_strings
+ 302: ldi r2, 0
+ 303: cmp r0, r2
+ 304: jnz [.check_if_ec]
+ 305: call [psh]
+ 306: call [clear_buffer]
+ 307: jmp [.main_loop]
+ 308: ldi r7, term_addrs.buffer_start - 0x100
+ 309: ldi r1, term_addrs.string_pointers.cmds.ec - 0x100
+ 30a: push r1
+ 30b: push r7
+ 30c: syscall k_services.cmp_strings
+ 30e: ldi r2, 0
+ 30f: cmp r0, r2
+ 310: jnz [.invalid_command_handler]
+ 311: call [ec]
+ 312: call [clear_buffer]
+ 313: jmp [.main_loop]
+ 314: ldi r0, errors.INVALID_COMMAND
+ 315: push r0
+ 316: call [print_error]
+ 317: ldi r0, "\n"
+ 318: push r0
+ 319: syscall k_services.putc
+ 31b: call [print_prompt]
+ 31c: call [clear_buffer]
+ 31d: jmp [.main_loop]
+ 31e: copy_stop
