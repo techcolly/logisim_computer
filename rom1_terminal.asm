@@ -4,9 +4,9 @@
 #bankdef terminal
 {
     bits = 24
-    addr = 0x10e
+    addr = 0x113
     size = 0x2000
-    outp = 24*0x10e  
+    outp = 24*0x113  
 }
 ;-----------------------------------------> ignore this
 

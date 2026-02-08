@@ -22,6 +22,11 @@ kernel:
                 SYSCALL_HANDLER: ;---> service number will be in r0
                     ldi r1, 0
                     wsr TWO_TMP, r1
+                    ldi r1, 11
+                    cmp r0, r1
+                    juge [k_panic] ;---> panic if invalid id
+                    ldi r1, 0x041
+                    add r0, r1
                     ldr r1, [r0]
                     regcall [r1]
                     sysret
@@ -65,27 +70,27 @@ kernel:
                     jmp [__LOAD_ROM_FILE__]
                 k_prepare_svcids:
                     ldi r0, k_getc
-                    st [k_services.getc], r0
+                    st [k_services.getc + 0x041], r0
                     ldi r0, k_putc
-                    st [k_services.putc], r0
+                    st [k_services.putc + 0x041], r0
                     ldi r0, k_puthex8
-                    st [k_services.puthex8], r0
+                    st [k_services.puthex8 + 0x041], r0
                     ldi r0, k_puts
-                    st [k_services.puts], r0
+                    st [k_services.puts + 0x041], r0
                     ldi r0, k_readline
-                    st [k_services.readline], r0
+                    st [k_services.readline + 0x041], r0
                     ldi r0, k_cls
-                    st [k_services.cls], r0
+                    st [k_services.cls + 0x041], r0
                     ldi r0, k_store8
-                    st [k_services.store8], r0
+                    st [k_services.store8 + 0x041], r0
                     ldi r0, k_load8
-                    st [k_services.load8], r0
+                    st [k_services.load8 + 0x041], r0
                     ldi r0, k_cmp_strings
-                    st [k_services.cmp_strings], r0
+                    st [k_services.cmp_strings + 0x041], r0
                     ldi r0, k_save_regs
-                    st [k_services.save_regs], r0
+                    st [k_services.save_regs + 0x041], r0
                     ldi r0, k_ascii_to_hex
-                    st [k_services.ascii_to_hex], r0
+                    st [k_services.ascii_to_hex + 0x041], r0
                     ret
                 k_prepare_pgrm_start_ids:
                     ldi r0, pgrm_start_addrs.terminal.lo8_bits
@@ -255,7 +260,6 @@ kernel:
                 k__internal__print_k_err:
                     __printc_no_syscall("K", r1) ;---> this K: means that the kernel is throwing the error instead of someone else
                     __printc_no_syscall(":", r1) 
-                    __printc_no_syscall("\n", r1)
                     ret
                 k__internal_error_handler:
                     wsr ERR_INFO, r1
@@ -264,6 +268,7 @@ kernel:
                     ld r1, [general_addresses.error_information] ;---> this function must only clobber r1
                     push r1
                     call [k_puthex8]
+                    __printc_no_syscall("\n", r1)
                     ret
                 k_save_regs: ;---> needs r0 on stack
                     pop r0

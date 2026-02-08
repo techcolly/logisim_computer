@@ -16,17 +16,17 @@
 }
 
 #const k_services = struct { ;---> note that these are memory addresses also
-    getc = 0x41
-    putc = 0x42
-    puthex8 = 0x43
-    puts = 0x44
-    readline = 0x45
-    cls = 0x46
-    store8 = 0x47
-    load8 = 0x48
-    cmp_strings = 0x49
-    save_regs = 0x4a
-    ascii_to_hex = 0x4b
+    getc = 0
+    putc = 1
+    puthex8 = 2
+    puts = 3
+    readline = 4
+    cls = 5
+    store8 = 6
+    load8 = 7
+    cmp_strings = 8
+    save_regs = 9
+    ascii_to_hex = 10
 }
 
 #const errors = struct {
@@ -42,7 +42,7 @@
 #const pgrm_start_addrs = struct { ;---> this is for the kernel to know where to load the terminal to in memory
     terminal = struct {
         hi2_bits = 0b10
-        lo8_bits = 0x04b
+        lo8_bits = 0x050
         ;literal value ---> 0x1d8
         table_addr = 0x051
     }
