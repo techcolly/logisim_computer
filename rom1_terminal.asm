@@ -1,249 +1,16 @@
-#const mmio = struct {
-    KBD_CLEAR = 0x3ff
-    KBD_AVAIL = 0x3fe
-    KBD_GET_CHAR = 0x3fd
-    TERM_PUT_CHAR = 0x3fc
-    TERM_CLR = 0x3fb
-    ENTER_ACTIVE = 0x3fa
-    ENTER_CLEAR = 0x3f9
-}
+#include "rules_and_constants.asm"
 
-#const k_addrs = struct {
-    K_BUFFER_START = 0x20
-    K_BUFFER_END = 0x40
-}
-
-#const k_services = struct { ;---> note that these are memory addresses also
-    getc = 0x41
-    putc = 0x42
-    puthex8 = 0x43
-    puts = 0x44
-    readline = 0x45
-    cls = 0x46
-    store8 = 0x47
-    load8 = 0x48
-    cmp_strings = 0x49
-    save_regs = 0x4a
-    ascii_to_hex = 0x4b
-}
-
-#const errors = struct {
-    INVALID_COMMAND = 0x01
-    INVALID_HEX_CHAR = 0x02  
-}
-
-#const term_addrs = struct {
-
-    string_pointers = struct {
-
-        prompt = 0x100
-        error_template = 0x102
-
-        cmds = struct {
-            c = 0x105
-            r = 0x107
-            pm = 0x109
-            psh = 0x10c
-            pop = 0x110
-            s = 0x114
-            l = 0x116
-            rs = 0x118
-            ra = 0x11b
-            ec = 0x11e
-        }
-
-        argp = struct { ;---> argument pointers
-            argp1 = 0x2a0
-            argp2 = 0x2a1
-            argp3 = 0x2a2
-            argp4 = 0x2a3
-        }
-
-    }
-
-    buffer_start = 0x150
-    buffer_end = 0x170
-}
-
-#const general_addresses = struct {
-    hex_table_start = 0x250
-}
-
+;-----------------------------------------> ignore this
 #bankdef terminal
 {
     bits = 24
-    addr = 0x0f5
-    size = 0x2000 ; was 0x20 before
-    outp = 24*0x0f5  
+    addr = 0x10e
+    size = 0x2000
+    outp = 24*0x10e  
 }
+;-----------------------------------------> ignore this
 
-
-#subruledef cond_codes {
-    neg => 0b0000
-    pos => 0b0001
-    ze => 0b0010
-    eq => 0b0010
-    nze => 0b0011
-    neq => 0b0011
-    uge => 0b0100
-    ult => 0b0101
-    ov => 0b0110
-    nov => 0b0111
-    ugt => 0b1000
-    ule => 0b1001
-    sge => 0b1010
-    slt => 0b1011
-    sgt => 0b1100
-    sle => 0b1101
-    un => 0b1110
-}
-
-#subruledef special_codes {
-    FLAGS       => 0b000
-    SHIFT_AMT   => 0b001
-    TWO_TMP     => 0b010
-    TST_LED     => 0b011
-    COPY_MODE   => 0b100
-    ERR_INFO    => 0b101
-    PGRM_START_ADDR     => 0b110
-}
-
-#subruledef addr_special_codes {
-    PC              => 0b000
-    SP              => 0b001
-    CSP             => 0b010
-    C_R             => 0b011
-    PGRM_START      => 0b100
-    SYSRET          => 0b101
-    INT_RET         => 0b110
-}
-
-#ruledef {
-    add r{reg_dest_a}, r{reg_source_b}                  => 0b00000 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-    sub r{reg_dest_a}, r{reg_source_b}                  => 0b00001 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-    shl r{reg_dest_a}                                   => 0b00010 @ reg_dest_a`3 @ 0b000          @ 0b00000 @ 0b00000000
-    shr r{reg_dest_a}                                   => 0b00011 @ reg_dest_a`3 @ 0b000          @ 0b00000 @ 0b00000000
-    and r{reg_dest_a}, r{reg_source_b}                  => 0b00100 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-    or  r{reg_dest_a}, r{reg_source_b}                  => 0b00101 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-    xor r{reg_dest_a}, r{reg_source_b}                  => 0b00110 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-
-    intret                                              => 0b00111 @ 0b000       @ 0b000           @ 0b00000 @ 0b00000000
-    mov r{reg_dest_a}, r{reg_source_b}                  => 0b01000 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-    ldi r{reg_dest_a}, {imm8}                           => 0b01001 @ reg_dest_a`3 @ 0b000          @ 0b00000 @ imm8`8
-    nop                                                 => 0b01010 @ 0b000       @ 0b000           @ 0b00000 @ 0b00000000
-
-    rar r{reg_dest_a}, {addr_src_b: addr_special_codes} => 0b01011 @ reg_dest_a`3 @addr_src_b`3 @ 0b00000 @ 0b00000000
-    adc r{reg_dest_a}, r{reg_source_b}                  => 0b01100 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-    sbc r{reg_dest_a}, r{reg_source_b}                  => 0b01101 @ reg_dest_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000
-    rsr r{reg_dest_a}, {src_b: special_codes}           => 0b01110 @ reg_dest_a`3 @ src_b`3 @ 0b00000 @ 0b00000000 ; reg dest is main, reg source is special
-    wsr {dst_a: special_codes}, r{reg_source_b}         => 0b01111 @ dst_a`3 @ reg_source_b`3 @ 0b00000 @ 0b00000000 ; reg dest is special, reg source is main
-
-    halt                                                => 0b10000 @ 0b000       @ 0b000           @ 0b00000 @ 0b00000000
-
-    joci {condition: cond_codes} [{imm10}]                => 0b10001 @ 0b0 @ 0b000            @ 0b0 @ condition`4 @ imm10`10
-    jocr {condition: cond_codes} [r{reg_source_a}]      => 0b10001 @ 0b1 @ reg_source_a`3 @ 0b0 @ condition`4 @ 0b0000000000
-
-    jroci {condition: cond_codes} [{imm10}]               => 0b10010 @ 0b0 @ 0b000            @ 0b0 @ condition`4 @ imm10`10
-    jrocr {condition: cond_codes} [r{reg_source_a}]     => 0b10010 @ 0b1 @ reg_source_a`3 @ 0b0 @ condition`4 @ 0b0000000000
-
-    cmp r{register_a}, r{register_b}                    => 0b10011 @ register_a`3 @ register_b`3 @ 0b00000 @ 0b00000000
-    ld r{reg_dest_a}, [{imm10_addr}]                    => 0b10100 @ reg_dest_a`3 @ 0b000000 @ imm10_addr`10
-    st [{imm10_addr}], r{reg_source_b}                  => 0b10101 @ 0b000 @ reg_source_b`3 @ 0b000 @ imm10_addr`10
-    ldr r{reg_dest_a}, [r{addr_source_b}]               => 0b10110 @ reg_dest_a`3 @ addr_source_b`3 @ 0b0000000000000
-    str [r{addr_source_b}], r{reg_source_a}             => 0b10111 @ reg_source_a`3 @ addr_source_b`3 @ 0b0000000000000
-    isp                                                 => 0b11000 @ 0b000000000 @ 0b1111000000
-    push r{reg_source_b}                                => 0b11001 @ 0b000 @ reg_source_b`3 @ 0b0000000000000
-    pop r{reg_dest_a}                                   => 0b11010 @ reg_dest_a`3 @ 0b000 @ 0b0000000000000
-    call [{imm10_addr}]                                 => 0b11011 @ 0b000 @ 0b000 @ 0b000 @ imm10_addr`10
-    regcall [r{addr_source_b}]                          => 0b11011 @ 0b000 @ addr_source_b`3 @ 0b100 @ 0b0000000000
-    ret                                                 => 0b11100 @ 0b000 @ 0b000 @ 0b000 @ 0b0000000000
-    cim {imm8}                                          => 0b11101 @ 0b000 @ 0b000 @ 0b00000 @ imm8`8 ;can be either 0 or 1 
-    syscall                                             => 0b11110 @ 0b000 @ 0b000 @ 0b00000 @ 0b00000000  
-    sysret                                              => 0b11111 @ 0b000 @ 0b000 @ 0b00000 @ 0b00000000 
-
-    copy_stop                                           => 0xffffff ;not really an instruction, disables copy mode via hardware only | the CPU will execute this but it does nothing   
-                  
-    ;-------------------------------------------------------------------------------------------------------------------------------------------------------- aliases
-
-    jz [{imm10}] => asm {
-        joci ze [{imm10}]
-    }
-
-    jnz [{imm10}] => asm {
-        joci nze [{imm10}]
-    }
-
-    jmp [{imm10}] => asm {
-        joci un [{imm10}]
-    }
-
-    juge [{imm10}] => asm {
-        joci uge [{imm10}]
-    }
-
-    jc [{imm10}] => asm {
-        joci uge [{imm10}]
-    }
-
-    syscall {id} => asm {
-        ldi r0, {id}
-        syscall
-    }
-    ;-------------------------------------------------------------------------------------------------------------------------------------------------------- mini functions
-
-    getc() => asm {
-        ld r0, [mmio.KBD_GET_CHAR]
-    }
-
-    putc() => asm {
-        pop r0
-        st [mmio.TERM_PUT_CHAR], r0
-    }
-
-    push_and_store({lo8}, {hi2}, {value}) => asm { ;----> will clobber r1
-            ldi r1, {hi2} ;----> hi2
-            push r1
-            ldi r1, {lo8} ;----> lo8
-            push r1
-            ldi r1, {value} ;----> value
-            push r1
-            syscall k_services.store8
-    }
-
-    push_and_store_reg({lo8}, {hi2}, r{reg_num}) => asm { ;----> will clobber r0
-            ldi r0, {hi2} ;----> hi2
-            push r0
-            ldi r0, {lo8} ;----> lo8
-            push r0
-            mov r0, r{reg_num} ;----> value
-            push r0
-            syscall k_services.store8
-    }
-
-    printc({char}, r{reg_num}) => asm {
-        ldi r{reg_num}, {char}
-        push r{reg_num}
-        syscall k_services.putc
-    }
-
-    deref_argp(arg{arg_num}) => asm { ;---> gets argp value which is a pointer to a string in RAM, clobbers r0,r1, TWO_TMP
-        ;---> puts lo8 in r0
-        ldi r3, term_addrs.string_pointers.argp.argp{arg_num} - 0x200 ;---> pointer to another pointer for the argument string
-        ldi r1, 0b10 ;---> lives in memory area 0x2XX so hi2 bits should be 0b10
-        push r1 ;---> hi2
-        push r3 ;---> lo8
-        syscall k_services.load8
-    }
-
-    ;-------------------------------------------------------------------------------------> kernel functions
-
-    __printc_no_syscall({char}, r{reg_num}) => asm {
-        ldi r{reg_num}, {char}
-        st [mmio.TERM_PUT_CHAR], r{reg_num}
-    }
-
-}
-
+;---> terminal code starts below
 terminal:
     funcs:
         control_funcs:
@@ -256,7 +23,6 @@ terminal:
                 ret
             print_error: ;---> error code must be on the stack
                 pop r4
-                wsr ERR_INFO, r4
                 ldi r0, term_addrs.string_pointers.error_template - 0x100 ;---> low 8 bits of prompt for terminal
                 ldi r1, 0b01
                 push r1 ;---> hi2
@@ -264,6 +30,7 @@ terminal:
                 syscall k_services.puts
                 push r4
                 syscall k_services.puthex8
+                printc("\n", r0)
                 ret
             clear_buffer:
                 ldi r4, 0
@@ -294,8 +61,29 @@ terminal:
                     ldi r2, 0
                     cmp r0, r2
                     ret
-
+            error_handler:
+                wsr ERR_INFO, r1
+                push r1
+                call [print_error]
+                ret
+                
         user_funcs:
+            helper_arg_ascii_to_hex: ;---> result in r0, clobbers r0, r1, r2, r3
+            ;---> assumes r4 is argp hi2, r7 is 1, r0 is arg lo8 already
+                mov r2, r0
+                push r4 ;---> hi2 (*arg)
+                push r2 ;---> lo8 (*arg)
+                syscall k_services.load8
+                mov r3, r0 ;---> lo8 (**arg), first ascii value (hi)
+                add r2, r7
+                push r4
+                push r2
+                syscall k_services.load8
+                mov r2, r0 ;---> lo8 (**arg), second ascii value (lo)
+                push r3
+                push r2
+                syscall k_services.ascii_to_hex ;---> (**arg), hex value
+                ret
             c:
                 syscall k_services.cls
                 call [print_prompt]
@@ -361,116 +149,176 @@ terminal:
                                     add r6, r4
                                     jmp [.pmemd_loop]
             pop:
-                pop r0 ;---> we just print and pop the first value on the stack
+                syscall k_services.puthex8 ;---> this pops the value and prints it already
+                printc("\n", r0)
                 call [print_prompt]
                 ret
             psh:
-                deref_argp(arg1) ;---> dereference argp pointer to get string pointer
-                ;---> lo8 in r0
-                ldi r4, 0b01 ;---> hi2
-                mov r5, r0 ;---> copy lo8 to r5 as it will get clobbered
-                push r4 ;---> hi2
-                push r5 ;---> lo8
-                syscall k_services.load8
-                mov r6, r0 ;---> move first part of hex value to r6 (upper part)
-                ldi r0, 1
-                add r5, r0 ;---> advance pointer to string over by 1
-                push r4
-                push r5
-                syscall k_services.load8
-                mov r7, r0 ;---> move second part of hex value to r7 (lower part)
-                push r6
-                push r7
-                syscall k_services.ascii_to_hex
+                deref_argp_hi2()
+                mov r4, r0
+                ldi r7, 1
+
+                deref_argp(arg1)
+                call [helper_arg_ascii_to_hex]
                 push r0
                 call [print_prompt]
                 ret
             ec: ;---> this one is a bit confusing
-                deref_argp(arg1) ;---> lo8 in r0
-                ldi r1, 0b01
-                push r1 ;---> push hi2
+                deref_argp_hi2() 
+                push r0 ;---> push hi2
+                deref_argp(arg1)
                 push r0 ;---> push lo8
                 syscall k_services.puts
                 printc("\n", r0)
                 call [print_prompt]
                 ret
+            helper_rs:
+                push r0
+                syscall k_services.puthex8
+                printc(" ", r0)
+                ret
             rs:
                 rsr r0, FLAGS
-                push r0
-                syscall k_services.puthex8
-                printc(" ", r0)
+                call [helper_rs]
                 rsr r0, SHIFT_AMT
-                push r0
-                syscall k_services.puthex8
-                printc(" ", r0)
+                call [helper_rs]
                 rsr r0, TWO_TMP
-                push r0
-                syscall k_services.puthex8
-                printc(" ", r0)
+                call [helper_rs]
                 rsr r0, TST_LED
-                push r0
-                syscall k_services.puthex8
-                printc(" ", r0)
+                call [helper_rs]
                 rsr r0, COPY_MODE
-                push r0
-                syscall k_services.puthex8
-                printc(" ", r0)
+                call [helper_rs]
                 rsr r0, ERR_INFO
-                push r0
-                syscall k_services.puthex8
+                call [helper_rs]
                 printc("\n", r0)
                 call [print_prompt]
                 ret
+            helper_ra:
+                rsr r1, TWO_TMP
+                push r1
+                syscall k_services.puthex8
+                push r3
+                syscall k_services.puthex8
+                printc(" ", r0)
+                ret
+            ra:
+                rar r3, PC
+                call [helper_ra]
+                rar r3, SP
+                call [helper_ra]
+                rar r3, CSP
+                call [helper_ra]
+                rar r3, C_R
+                call [helper_ra]
+                rar r3, PGRM_START
+                call [helper_ra]
+                rar r3, SYSRET
+                call [helper_ra]
+                rar r3, INT_RET
+                call [helper_ra]
+                printc("\n", r0)
+                call [print_prompt]
+                ret
+            s:
+                deref_argp_hi2() ;---> hi2 (of all arg pointers) in r0
+                mov r4, r0
+                ldi r7, 1
 
+                deref_argp(arg1) ;---> lo8 (of arg1 string pointer) in r0
+                call [helper_arg_ascii_to_hex]
+                mov r5, r0 ;---> address hi2
+
+                deref_argp(arg2) ;---> lo8 (of arg2 string pointer) in r0
+                call [helper_arg_ascii_to_hex]
+                mov r6, r0 ;---> address lo8
+
+                deref_argp(arg3) ;---> lo8 (of arg3 string pointer) in r0
+                call [helper_arg_ascii_to_hex]
+                mov r7, r0 ;---> value to store
+
+                push r5
+                push r6
+                push r7
+                syscall k_services.store8
+    
+                call [print_prompt]
+                ret
+            l:
+                deref_argp_hi2()
+                mov r4, r0
+                ldi r7, 1
+
+                deref_argp(arg1)
+                call [helper_arg_ascii_to_hex]
+                mov r5, r0
+
+                deref_argp(arg2)
+                call [helper_arg_ascii_to_hex]
+                mov r6, r0
+
+                push r5
+                push r6
+
+                syscall k_services.load8
+
+                push r0
+                syscall k_services.puthex8
+
+                printc("\n", r0)
+
+                call [print_prompt]
+
+                ret
     .load_strings:
         .prompt:
-            push_and_store(0x00, 0b01, ">")
-            push_and_store(0x01, 0b01, "\0")
+            push_and_store(0b01, 0x00, ">")
+            push_and_store(0b01, 0x01, "\0")
         .error_template:
-            push_and_store(0x02, 0b01, "E")
-            push_and_store(0x03, 0b01, ":")
-            push_and_store(0x04, 0b01, "\0")
+            push_and_store(0b01, 0x02, "E")
+            push_and_store(0b01, 0x03, ":")
+            push_and_store(0b01, 0x04, "\0")
         .commands:
             ..c: ;---> clear screen
-                push_and_store(0x05, 0b01, "c")
-                push_and_store(0x06, 0b01, "\0")
+                push_and_store(0b01, 0x05, "c")
+                push_and_store(0b01, 0x06, "\0")
             ..r: ;---> print registers
-                push_and_store(0x07, 0b01, "r")
-                push_and_store(0x08, 0b01, "\0")
+                push_and_store(0b01, 0x07, "r")
+                push_and_store(0b01, 0x08, "\0")
             ..pm: ;---> dump program memory
-                push_and_store(0x09, 0b01, "p")
-                push_and_store(0x0a, 0b01, "m")
-                push_and_store(0x0b, 0b01, "\0")
+                push_and_store(0b01, 0x09, "p")
+                push_and_store(0b01, 0x0a, "m")
+                push_and_store(0b01, 0x0b, "\0")
             ..psh: ;---> push value onto stack
-                push_and_store(0x0c, 0b01, "p")
-                push_and_store(0x0d, 0b01, "s") 
-                push_and_store(0x0e, 0b01, "h")
-                push_and_store(0x0f, 0b01, "\0")
+                push_and_store(0b01, 0x0c, "p")
+                push_and_store(0b01, 0x0d, "s") 
+                push_and_store(0b01, 0x0e, "h")
+                push_and_store(0b01, 0x0f, "\0")
             ..pop: ;---> pop value off of stack
-                push_and_store(0x10, 0b01, "p")
-                push_and_store(0x11, 0b01, "o")
-                push_and_store(0x12, 0b01, "p") 
-                push_and_store(0x13, 0b01, "\0")
+                push_and_store(0b01, 0x10, "p")
+                push_and_store(0b01, 0x11, "o")
+                push_and_store(0b01, 0x12, "p") 
+                push_and_store(0b01, 0x13, "\0")
             ..s: ;---> store value to memory
-                push_and_store(0x14, 0b01, "s")
-                push_and_store(0x15, 0b01, "\0")
+                push_and_store(0b01, 0x14, "s")
+                push_and_store(0b01, 0x15, "\0")
             ..l: ;---> look at value in memory
-                push_and_store(0x16, 0b01, "l")
-                push_and_store(0x17, 0b01, "\0")
+                push_and_store(0b01, 0x16, "l")
+                push_and_store(0b01, 0x17, "\0")
             ..rs: ;---> read special (register)
-                push_and_store(0x18, 0b01, "r")
-                push_and_store(0x19, 0b01, "s")
-                push_and_store(0x1a, 0b01, "\0")
+                push_and_store(0b01, 0x18, "r")
+                push_and_store(0b01, 0x19, "s")
+                push_and_store(0b01, 0x1a, "\0")
             ..ra: ;---> read address (register)
-                push_and_store(0x1b, 0b01, "r")
-                push_and_store(0x1c, 0b01, "a")
-                push_and_store(0x1d, 0b01, "\0")
+                push_and_store(0b01, 0x1b, "r")
+                push_and_store(0b01, 0x1c, "a")
+                push_and_store(0b01, 0x1d, "\0")
             ..ec: ;---> echo input back to user
-                push_and_store(0x1e, 0b01, "e")
-                push_and_store(0x1f, 0b01, "c")
-                push_and_store(0x20, 0b01, "\0")
-            
+                push_and_store(0b01, 0x1e, "e")
+                push_and_store(0b01, 0x1f, "c")
+                push_and_store(0b01, 0x20, "\0")
     main:
+        .store_hi2_bits_of_arguments:
+            push_and_store(0b10, 0xaf, 1)
         syscall k_services.cls
         ldi r7, term_addrs.buffer_start - 0x100 ;----> lower 8 bits of buffer pointer
         call [print_prompt]
@@ -587,7 +435,7 @@ terminal:
                     call [cmd_match_check_helper]
                     jnz [.check_if_pop]
 
-                .pmemd_handler:
+                .pm_handler:
                             push r0
                             call [pm]
                             call [clear_buffer]
@@ -626,21 +474,46 @@ terminal:
                 .check_if_rs:
                     ldi r1, term_addrs.string_pointers.cmds.rs - 0x100
                     call [cmd_match_check_helper]
-                    jnz [.invalid_command_handler]
+                    jnz [.check_if_ra]
 
                 .rs_handler:
                             call [rs]
                             call [clear_buffer]
                             jmp [.main_loop]
 
+                .check_if_ra:
+                    ldi r1, term_addrs.string_pointers.cmds.ra - 0x100
+                    call [cmd_match_check_helper]
+                    jnz [.check_if_l]
+
+                .ra_handler:
+                            call [ra]
+                            call [clear_buffer]
+                            jmp [.main_loop]
+
+                .check_if_l:
+                    ldi r1, term_addrs.string_pointers.cmds.l - 0x100
+                    call [cmd_match_check_helper]
+                    jnz [.check_if_s]
+
+                .l_handler:
+                            call [l]
+                            call [clear_buffer]
+                            jmp [.main_loop]
+
+                .check_if_s:
+                    ldi r1, term_addrs.string_pointers.cmds.s - 0x100
+                    call [cmd_match_check_helper]
+                    jnz [.invalid_command_handler]
+
+                .s_handler:
+                            call [s]
+                            call [clear_buffer]
+                            jmp [.main_loop]
+
                 .invalid_command_handler:
-                    ldi r0, errors.INVALID_COMMAND
-                    wsr ERR_INFO, r0
-                    push r0
-                    call [print_error]
-                    ldi r0, "\n"
-                    push r0
-                    syscall k_services.putc
+                    ldi r1, errors.INVALID_COMMAND
+                    call [error_handler]
                     call [print_prompt]
                     call [clear_buffer]
                     jmp [.main_loop]
