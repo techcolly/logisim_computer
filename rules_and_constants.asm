@@ -1,103 +1,84 @@
 ;--------------------------> start of constants
 
-#const mmio = struct {
-    KBD_CLEAR = 0x3ff
-    KBD_AVAIL = 0x3fe
-    KBD_GET_CHAR = 0x3fd
-    TERM_PUT_CHAR = 0x3fc
-    TERM_CLR = 0x3fb
-    ENTER_ACTIVE = 0x3fa
-    ENTER_CLEAR = 0x3f9
-}
+;//////////////////////////// ---> <mmio addresses>
+#const IO_KBD_CLR = 0x3ff
+#const IO_KBD_AVAIL = 0x3fe
+#const IO_KBD_GETC = 0x3fd
+#const IO_TERM_PUTC = 0x3fc
+#const IO_TERM_CLR = 0x3fb
+#const IO_ENTER_ACTIVE = 0x3fa
+#const IO_ENTER_CLR = 0x3f9
+;//////////////////////////// ---> </mmio addresses>
 
-#const k_addrs = struct {
-    K_BUFFER_START = 0x20
-    K_BUFFER_END = 0x40
-}
+;//////////////////////////// ---> <kernel addresses (unused)>
+#const K_BUFFER_START = 0x20
+#const K_BUFFER_END = 0x40
+;//////////////////////////// ---> /<kernel addresses (unused)>
 
-#const k_services = struct { ;---> note that these are memory addresses also
-    getc = 0
-    putc = 1
-    puthex8 = 2
-    puts = 3
-    readline = 4
-    cls = 5
-    store8 = 6
-    load8 = 7
-    cmp_strings = 8
-    save_regs = 9
-    ascii_to_hex = 10
-}
+;//////////////////////////// ---> <syscall ids>
+#const SYS_GETC = 0
+#const SYS_PUTC = 1
+#const SYS_PUTHEX8 = 2
+#const SYS_PUTS = 3
+#const SYS_READLINE = 4
+#const SYS_CLS = 5
+#const SYS_STORE8 = 6
+#const SYS_LOAD8 = 7
+#const SYS_CMP_STR = 8
+#const SYS_SAVE_REGS = 9
+#const SYS_ASCII_2HEX = 10
+;//////////////////////////// ---> </syscall ids>
 
-#const errors = struct {
-    INVALID_COMMAND = 0x01
-    INVALID_HEX_CHAR = 0x02
+;//////////////////////////// ---> <program start addresses>
+#const TERM_STRT_HI2 = 0b10
+#const TERM_STRT_LO8 = 0x050
+#const TERM_STRT_TBL_ADDR = 0x051
+;//////////////////////////// ---> </program start addresses>
 
-    UNAUTHORIZED_READ = 0xa0
-    UNAUTHORIZED_WRITE = 0xa1
+;//////////////////////////// ---> <errors>
+#const ERR_INVAL_CMD = 0x01
+#const ERR_INVAL_HEXC = 0x02
+#const SYS_ERR_UNAUTH_READ = 0xa0
+#const SYS_ERR_UNAUTH_WRITE = 0xa1
+#const SYS_ERR_KRNL_PANIC = 0xee
+;//////////////////////////// ---> </errors>
 
-    KERNEL_PANIC = 0xee  
-}
+;//////////////////////////// ---> <terminal addresses>
+#const T_PROMPT = 0x100
+#const T_ERR_TMPLATE = 0x102
+#const T_CMD_C = 0x105
+#const T_CMD_R = 0x107
+#const T_CMD_PM = 0x109
+#const T_CMD_PSH = 0x10c
+#const T_CMD_POP = 0x110
+#const T_CMD_S = 0x114
+#const T_CMD_L = 0x116
+#const T_CMD_RS = 0x118
+#const T_CMD_RA = 0x11b
+#const T_CMD_EC = 0x11e
+#const T_BUF_START = 0x150
+#const T_BUF_END = 0x170
+#const T_ARGP_1 = 0x2a0
+#const T_ARGP_2 = 0x2a1
+#const T_ARGP_3 = 0x2a2
+#const T_ARGP_4 = 0x2a3
+#const T_ARGP_HI2 = 0x2af
+;//////////////////////////// ---> </terminal addresses>
 
-#const pgrm_start_addrs = struct { ;---> this is for the kernel to know where to load the terminal to in memory
-    terminal = struct {
-        hi2_bits = 0b10
-        lo8_bits = 0x050
-        ;literal value ---> 0x1d8
-        table_addr = 0x051
-    }
-}
+;//////////////////////////// ---> <general addresses>
+#const FLAG = 0x060
+#const INFO_ERR = 0x1ff
+#const SV_REG_0 = 0x200
+#const SV_REG_1 = 0x201
+#const SV_REG_2 = 0x202
+#const SV_REG_3 = 0x203
+#const SV_REG_4 = 0x204
+#const SV_REG_5 = 0x205
+#const SV_REG_6 = 0x206
+#const SV_REG_7 = 0x207
+#const HEX_TBL = 0x210
+;//////////////////////////// ---> </general addresses>
 
-#const term_addrs = struct { ;---> this is for the terminal only, the kernel doesn't care about this
-
-    string_pointers = struct {
-
-        prompt = 0x100
-        error_template = 0x102
-
-        cmds = struct {
-            c = 0x105
-            r = 0x107
-            pm = 0x109
-            psh = 0x10c
-            pop = 0x110
-            s = 0x114
-            l = 0x116
-            rs = 0x118
-            ra = 0x11b
-            ec = 0x11e
-        }
-
-        argp = struct { ;---> argument pointers
-            argp1 = 0x2a0
-            argp2 = 0x2a1
-            argp3 = 0x2a2
-            argp4 = 0x2a3
-            argp_mem_block = 0x2af
-        }
-
-    }
-
-    buffer_start = 0x150
-    buffer_end = 0x170
-}
-
-#const general_addresses = struct {
-    FLAG = 0x060
-    
-    error_information = 0x1ff
-
-    save_register_0 = 0x200
-    save_register_1 = 0x201
-    save_register_2 = 0x202
-    save_register_3 = 0x203
-    save_register_4 = 0x204
-    save_register_5 = 0x205
-    save_register_6 = 0x206
-    save_register_7 = 0x207
-
-    hex_table_start = 0x210
-}
 
 ;--------------------------> end of constants
 
@@ -230,12 +211,12 @@
     }
 
     getc() => asm {
-        ld r0, [mmio.KBD_GET_CHAR]
+        ld r0, [IO_KBD_GETC]
     }
 
     putc() => asm {
         pop r0
-        st [mmio.TERM_PUT_CHAR], r0
+        st [IO_TERM_PUTC], r0
     }
 
     push_and_store({hi2}, {lo8}, {value}) => asm { ;----> will clobber r1
@@ -245,7 +226,7 @@
             push r1
             ldi r1, {value} ;----> value
             push r1
-            syscall k_services.store8
+            syscall SYS_STORE8
     }
 
     push_and_store_reg({hi2}, {lo8}, r{reg_num}) => asm { ;----> will clobber r0
@@ -255,36 +236,36 @@
             push r0
             mov r0, r{reg_num} ;----> value
             push r0
-            syscall k_services.store8
+            syscall SYS_STORE8
     }
 
     printc({char}, r{reg_num}) => asm {
         ldi r{reg_num}, {char}
         push r{reg_num}
-        syscall k_services.putc
+        syscall SYS_PUTC
     }
 
     deref_argp(arg{arg_num}) => asm { ;---> gets argp value which is a pointer to a string in RAM, clobbers r0,r1, TWO_TMP
         ;---> puts lo8 in r0
-        ldi r3, term_addrs.string_pointers.argp.argp{arg_num} - 0x200 ;---> pointer to another pointer for the argument string
+        ldi r3, T_ARGP_{arg_num} - 0x200 ;---> pointer to another pointer for the argument string
         ldi r1, 0b10 ;---> lives in memory area 0x2XX so hi2 bits should be 0b10
         push r1 ;---> hi2
         push r3 ;---> lo8
-        syscall k_services.load8
+        syscall SYS_LOAD8
     }
 
     deref_argp_hi2() => asm {
         ldi r3, 0b10
         push r3 ;---> hi2
-        ldi r3, term_addrs.string_pointers.argp.argp_mem_block - 0x200
+        ldi r3, T_ARGP_HI2 - 0x200
         push r3 ;---> lo8
-        syscall k_services.load8
+        syscall SYS_LOAD8
     }
     ;-------------------------------------------------------------------------------------> kernel functions
 
     __printc_no_syscall({char}, r{reg_num}) => asm {
         ldi r{reg_num}, {char}
-        st [mmio.TERM_PUT_CHAR], r{reg_num}
+        st [IO_TERM_PUTC], r{reg_num}
     }
 
     __kernel_store({address}, {value}, r{reg_num}) => asm  {
