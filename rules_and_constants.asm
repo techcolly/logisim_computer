@@ -205,67 +205,67 @@
     }
 
     syscall {id} => asm {
-        ldi r0, {id}
+        ldi         r0, {id}
         syscall
     }
 
     %__krnl_getc => asm {
-        ld r0, [IO_KBD_GETC]
+        ld          r0, [IO_KBD_GETC]
     }
 
     %__krnl_putc => asm {
-        pop r0
-        st [IO_TERM_PUTC], r0
+        pop         r0
+        st          [IO_TERM_PUTC], r0
     }
 
     %std_store hi({hi2}), lo({lo8}), {value} => asm { ;----> will clobber r1
-            ldi r1, {hi2} ;----> hi2
-            push r1
-            ldi r1, {lo8} ;----> lo8
-            push r1
-            ldi r1, {value} ;----> value
-            push r1
-            syscall SYS_STORE8
+        ldi         r1, {hi2} ;----> hi2
+        push        r1
+        ldi         r1, {lo8} ;----> lo8
+        push        r1
+        ldi         r1, {value} ;----> value
+        push        r1
+        syscall     SYS_STORE8
     }
 
     %printc {char}, @r{reg_num} => asm {
-        ldi r{reg_num}, {char}
-        push r{reg_num}
-        syscall SYS_PUTC
+        ldi         r{reg_num}, {char}
+        push        r{reg_num}
+        syscall     SYS_PUTC
     }
 
     %deref_arg arg{arg_num} => asm { ;---> gets argp value which is a pointer to a string in RAM, clobbers r0,r1, TWO_TMP
         ;---> puts lo8 in r0
-        ldi r3, T_ARGP_{arg_num} - 0x200 ;---> pointer to another pointer for the argument string
-        ldi r1, 0b10 ;---> lives in memory area 0x2XX so hi2 bits should be 0b10
-        push r1 ;---> hi2
-        push r3 ;---> lo8
-        syscall SYS_LOAD8
+        ldi         r3, T_ARGP_{arg_num} - 0x200 ;---> pointer to another pointer for the argument string
+        ldi         r1, 0b10 ;---> lives in memory area 0x2XX so hi2 bits should be 0b10
+        push        r1 ;---> hi2
+        push        r3 ;---> lo8
+        syscall     SYS_LOAD8
     }
 
     %deref_argp_hi2 => asm {
-        ldi r3, 0b10
-        push r3 ;---> hi2
-        ldi r3, T_ARGP_HI2 - 0x200
-        push r3 ;---> lo8
-        syscall SYS_LOAD8
+        ldi         r3, 0b10
+        push        r3 ;---> hi2
+        ldi         r3, T_ARGP_HI2 - 0x200
+        push        r3 ;---> lo8
+        syscall     SYS_LOAD8
     }
     ;-------------------------------------------------------------------------------------> kernel functions
 
     %__krnl_printc {char}, @r{reg_num} => asm {
-        ldi r{reg_num}, {char}
-        st [IO_TERM_PUTC], r{reg_num}
+        ldi         r{reg_num}, {char}
+        st          [IO_TERM_PUTC], r{reg_num}
     }
 
     %__krnl_store addr({address}), {value}, @r{reg_num} => asm  {
-        ldi r{reg_num}, {value}
-        st [{address}], r{reg_num}
+        ldi         r{reg_num}, {value}
+        st          [{address}], r{reg_num}
     }
     
     ;----------------------------------------------> all caps aliases/functions for very important stuff
 
     !___INSTRUCTION_MODE {imode} => asm {
-        cim {imode}
+        cim         {imode}
     }
 
     !___INITIALIZE_STACK_POINTER => asm {
@@ -273,12 +273,12 @@
     }
 
     !___COPY_MODE {params} => asm {
-        ldi r0, {params}
-        wsr COPY_MODE, r0
+        ldi         r0, {params}
+        wsr         COPY_MODE, r0
     }
 
     !___COPY_MODE_REG r{num} => asm {
-        wsr COPY_MODE, r{num}
+        wsr         COPY_MODE, r{num}
     }
 
 }
