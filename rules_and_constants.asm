@@ -10,10 +10,9 @@
 #const IO_ENTER_CLR = 0x3f9
 ;//////////////////////////// ---> </mmio addresses>
 
-;//////////////////////////// ---> <kernel addresses (unused)>
-#const K_BUFFER_START = 0x20
-#const K_BUFFER_END = 0x40
-;//////////////////////////// ---> /<kernel addresses (unused)>
+;//////////////////////////// ---> <general kernel addresses>
+#const SYS_TBL_STRT = 0x041
+;//////////////////////////// ---> </general kernel addresses>
 
 ;//////////////////////////// ---> <syscall ids>
 #const SYS_GETC = 0
@@ -162,13 +161,13 @@
     push r{reg_source_b}                                => 0b11001 @ 0b000 @ reg_source_b`3 @ 0b0000000000000
     pop r{reg_dest_a}                                   => 0b11010 @ reg_dest_a`3 @ 0b000 @ 0b0000000000000
     call [{imm10_addr}]                                 => 0b11011 @ 0b000 @ 0b000 @ 0b000 @ imm10_addr`10
-    regcall [r{addr_source_b}]                          => 0b11011 @ 0b000 @ addr_source_b`3 @ 0b100 @ 0b0000000000
+    callr [r{addr_source_b}]                            => 0b11011 @ 0b000 @ addr_source_b`3 @ 0b100 @ 0b0000000000
     ret                                                 => 0b11100 @ 0b000 @ 0b000 @ 0b000 @ 0b0000000000
     cim {imm8}                                          => 0b11101 @ 0b000 @ 0b000 @ 0b00000 @ imm8`8 ;can be either 0 or 1 
     syscall                                             => 0b11110 @ 0b000 @ 0b000 @ 0b00000 @ 0b00000000  
     sysret                                              => 0b11111 @ 0b000 @ 0b000 @ 0b00000 @ 0b00000000 
 
-    copy_stop                                           => 0xffffff ;not really an instruction, disables copy mode via hardware only | the CPU will execute this but it does nothing   
+    *_copy_stop                                         => 0xffffff ;not really an instruction, disables copy mode via hardware only | the CPU will execute this but it does nothing   
 
     ;---------------> end of opcodes, mneumonics, rules for the assembler
     
@@ -210,16 +209,16 @@
         syscall
     }
 
-    getc() => asm {
+    %__krnl_getc => asm {
         ld r0, [IO_KBD_GETC]
     }
 
-    putc() => asm {
+    %__krnl_putc => asm {
         pop r0
         st [IO_TERM_PUTC], r0
     }
 
-    push_and_store({hi2}, {lo8}, {value}) => asm { ;----> will clobber r1
+    %std_store hi({hi2}), lo({lo8}), {value} => asm { ;----> will clobber r1
             ldi r1, {hi2} ;----> hi2
             push r1
             ldi r1, {lo8} ;----> lo8
@@ -229,7 +228,7 @@
             syscall SYS_STORE8
     }
 
-    printc({char}, r{reg_num}) => asm {
+    %printc {char}, @r{reg_num} => asm {
         ldi r{reg_num}, {char}
         push r{reg_num}
         syscall SYS_PUTC
@@ -265,20 +264,20 @@
     
     ;----------------------------------------------> all caps aliases/functions for very important stuff
 
-    !SET_INSTRUCTION_MODE {imode} => asm {
+    !___INSTRUCTION_MODE {imode} => asm {
         cim {imode}
     }
 
-    !INITIALIZE_STACK_POINTER => asm {
+    !___INITIALIZE_STACK_POINTER => asm {
         isp
     }
 
-    !SET_COPY_MODE_PARAMS {params} => asm {
+    !___COPY_MODE {params} => asm {
         ldi r0, {params}
         wsr COPY_MODE, r0
     }
 
-    !SET_COPY_MODE_REG r{num} => asm {
+    !___COPY_MODE_REG r{num} => asm {
         wsr COPY_MODE, r{num}
     }
 

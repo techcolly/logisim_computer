@@ -14,12 +14,12 @@
 kernel:
     on_boot:
 
-        !SET_INSTRUCTION_MODE 0
-        !INITIALIZE_STACK_POINTER
+        !___INSTRUCTION_MODE 0
+        !___INITIALIZE_STACK_POINTER
         %__krnl_printc "B", @r0
 
         .os_copy:
-            !SET_COPY_MODE_PARAMS 0b0001
+            !___COPY_MODE 0b0001
 
             .os_funcs: 
 
@@ -30,14 +30,14 @@ kernel:
                     ldi			r1, 11
                     cmp			r0, r1
                     juge		[k_panic]           ;panic if invalid id
-                    ldi			r1, 0x041
+                    ldi			r1, SYS_TBL_STRT
                     add			r0, r1
                     ldr			r1, [r0]
-                    regcall		[r1]
+                    callr		[r1]
                     sysret
 
                 os_initialize:
-                    !SET_INSTRUCTION_MODE 1
+                    !___INSTRUCTION_MODE 1
                     %__krnl_printc "O", @r0
 
                     call		[k_prepare_svcids]
@@ -82,37 +82,37 @@ kernel:
                     
                 k_prepare_svcids:
                     ldi			r0, k_getc
-                    st			[SYS_GETC + 0x041], r0
+                    st			[SYS_GETC + SYS_TBL_STRT], r0
 
                     ldi			r0, k_putc
-                    st			[SYS_PUTC + 0x041], r0
+                    st			[SYS_PUTC + SYS_TBL_STRT], r0
 
                     ldi			r0, k_puthex8
-                    st			[SYS_PUTHEX8 + 0x041], r0
+                    st			[SYS_PUTHEX8 + SYS_TBL_STRT], r0
 
                     ldi			r0, k_puts
-                    st			[SYS_PUTS + 0x041], r0
+                    st			[SYS_PUTS + SYS_TBL_STRT], r0
 
                     ldi			r0, k_readline
-                    st			[SYS_READLINE + 0x041], r0
+                    st			[SYS_READLINE + SYS_TBL_STRT], r0
 
                     ldi			r0, k_cls
-                    st			[SYS_CLS + 0x041], r0
+                    st			[SYS_CLS + SYS_TBL_STRT], r0
 
                     ldi			r0, k_store8
-                    st			[SYS_STORE8 + 0x041], r0
+                    st			[SYS_STORE8 + SYS_TBL_STRT], r0
 
                     ldi			r0, k_load8
-                    st			[SYS_LOAD8 + 0x041], r0
+                    st			[SYS_LOAD8 + SYS_TBL_STRT], r0
 
                     ldi			r0, k_cmp_strings
-                    st			[SYS_CMP_STR + 0x041], r0
+                    st			[SYS_CMP_STR + SYS_TBL_STRT], r0
 
                     ldi			r0, k_save_regs
-                    st			[SYS_SAVE_REGS + 0x041], r0
+                    st			[SYS_SAVE_REGS + SYS_TBL_STRT], r0
 
                     ldi			r0, k_ascii_to_hex
-                    st			[SYS_ASCII_2HEX + 0x041], r0
+                    st			[SYS_ASCII_2HEX + SYS_TBL_STRT], r0
                     
                     ret
 
@@ -122,11 +122,11 @@ kernel:
                     ret
 
                 k_getc:
-                    getc()
+                    %__krnl_getc
                     ret
 
                 k_putc: ;---> takes one argument | ascii value of the character
-                    putc()
+                    %__krnl_putc
                     ret
 
                 k_puthex8: ;---> takes one argument | 8 bit value to convert to hexadecimal to print in console
@@ -334,8 +334,8 @@ kernel:
                     shl			r0
                     ldi			r1, 1
                     add			r0, r1
-                    !SET_COPY_MODE_REG r0           
+                    !___COPY_MODE_REG r0           
         .copy_stop:
-            copy_stop
+            *_copy_stop
         .intitalize:
             jmp			[os_initialize]

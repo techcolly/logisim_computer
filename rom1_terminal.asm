@@ -30,7 +30,7 @@ terminal:
                 syscall		SYS_PUTS
                 push		r4
                 syscall		SYS_PUTHEX8
-                printc("\n", r0)
+                %printc "\n", @r0
                 ret
             clear_buffer:
                 ldi			r4, 0
@@ -100,13 +100,13 @@ terminal:
                     syscall		SYS_LOAD8
                     push		r0
                     syscall		SYS_PUTHEX8
-                    printc(" ", r3)
+                    %printc " ", @r3
                     add			r6, r5
                     cmp			r4, r6
                     jnz			[.print_regs]
 
                 .printing_done:
-                    printc("\n", r0)
+                    %printc "\n", @r0
                     call		[print_prompt]
                     ret
             pm:
@@ -128,10 +128,10 @@ terminal:
                         cmp			r5, r0
                         jnz			[..space]
                         ...newline:
-                            printc("\n", r1)
+                            %printc "\n", @r1
                             jmp			[..continue]
                         ..space:
-                            printc(" ", r1)
+                            %printc " ", @r1
                     ..continue:
                         add			r7, r4
                     ..bounds_check:
@@ -142,7 +142,7 @@ terminal:
                             cmp			r6, r5
                             jnz			[...need_pointer_inc]
                             ...finished:
-                                printc("\n", r0)
+                                %printc "\n", @r0
                                 call		[r] ;---> r prints the prompt
                                 ret
                             ...need_pointer_inc:
@@ -150,7 +150,7 @@ terminal:
                                 jmp			[.pmemd_loop]
             pop:
                 syscall		SYS_PUTHEX8 ;---> this pops the value and prints it already
-                printc("\n", r0)
+                %printc "\n", @r0
                 call		[print_prompt]
                 ret
             psh:
@@ -169,13 +169,13 @@ terminal:
                 %deref_arg  arg1
                 push		r0 ;---> push lo8
                 syscall		SYS_PUTS
-                printc("\n", r0)
+                %printc "\n", @r0
                 call		[print_prompt]
                 ret
             helper_rs:
                 push		r0
                 syscall		SYS_PUTHEX8
-                printc(" ", r0)
+                %printc " ", @r0
                 ret
             rs:
                 rsr			r0, FLAGS
@@ -190,7 +190,7 @@ terminal:
                 call		[helper_rs]
                 rsr			r0, ERR_INFO
                 call		[helper_rs]
-                printc("\n", r0)
+                %printc "\n", @r0
                 call		[print_prompt]
                 ret
             helper_ra:
@@ -199,7 +199,7 @@ terminal:
                 syscall		SYS_PUTHEX8
                 push		r3
                 syscall		SYS_PUTHEX8
-                printc(" ", r0)
+                %printc " ", @r0
                 ret
             ra:
                 rar			r3, PC
@@ -216,7 +216,7 @@ terminal:
                 call		[helper_ra]
                 rar			r3, INT_RET
                 call		[helper_ra]
-                printc("\n", r0)
+                %printc "\n", @r0
                 call		[print_prompt]
                 ret
             s:
@@ -264,61 +264,61 @@ terminal:
                 push		r0
                 syscall		SYS_PUTHEX8
 
-                printc("\n", r0)
+                %printc "\n", @r0
 
                 call		[print_prompt]
 
                 ret
     .load_strings:
         .prompt:
-            push_and_store(0b01, 0x00, ">")
-            push_and_store(0b01, 0x01, "\0")
+            %std_store hi(0b01), lo(0x00), ">"
+            %std_store hi(0b01), lo(0x01), "\0"
         .error_template:
-            push_and_store(0b01, 0x02, "E")
-            push_and_store(0b01, 0x03, ":")
-            push_and_store(0b01, 0x04, "\0")
+            %std_store hi(0b01), lo(0x02), "E"
+            %std_store hi(0b01), lo(0x03), ":"
+            %std_store hi(0b01), lo(0x04), "\0"
         .commands:
             ..c: ;---> clear screen
-                push_and_store(0b01, 0x05, "c")
-                push_and_store(0b01, 0x06, "\0")
+                %std_store hi(0b01), lo(0x05), "c"
+                %std_store hi(0b01), lo(0x06), "\0"
             ..r: ;---> print registers
-                push_and_store(0b01, 0x07, "r")
-                push_and_store(0b01, 0x08, "\0")
+                %std_store hi(0b01), lo(0x07), "r"
+                %std_store hi(0b01), lo(0x08), "\0"
             ..pm: ;---> dump program memory
-                push_and_store(0b01, 0x09, "p")
-                push_and_store(0b01, 0x0a, "m")
-                push_and_store(0b01, 0x0b, "\0")
+                %std_store hi(0b01), lo(0x09), "p"
+                %std_store hi(0b01), lo(0x0a), "m"
+                %std_store hi(0b01), lo(0x0b), "\0"
             ..psh: ;---> push value onto stack
-                push_and_store(0b01, 0x0c, "p")
-                push_and_store(0b01, 0x0d, "s") 
-                push_and_store(0b01, 0x0e, "h")
-                push_and_store(0b01, 0x0f, "\0")
+                %std_store hi(0b01), lo(0x0c), "p"
+                %std_store hi(0b01), lo(0x0d), "s" 
+                %std_store hi(0b01), lo(0x0e), "h"
+                %std_store hi(0b01), lo(0x0f), "\0"
             ..pop: ;---> pop value off of stack
-                push_and_store(0b01, 0x10, "p")
-                push_and_store(0b01, 0x11, "o")
-                push_and_store(0b01, 0x12, "p") 
-                push_and_store(0b01, 0x13, "\0")
+                %std_store hi(0b01), lo(0x10), "p"
+                %std_store hi(0b01), lo(0x11), "o"
+                %std_store hi(0b01), lo(0x12), "p" 
+                %std_store hi(0b01), lo(0x13), "\0"
             ..s: ;---> store value to memory
-                push_and_store(0b01, 0x14, "s")
-                push_and_store(0b01, 0x15, "\0")
+                %std_store hi(0b01), lo(0x14), "s"
+                %std_store hi(0b01), lo(0x15), "\0"
             ..l: ;---> look at value in memory
-                push_and_store(0b01, 0x16, "l")
-                push_and_store(0b01, 0x17, "\0")
+                %std_store hi(0b01), lo(0x16), "l"
+                %std_store hi(0b01), lo(0x17), "\0"
             ..rs: ;---> read special (register)
-                push_and_store(0b01, 0x18, "r")
-                push_and_store(0b01, 0x19, "s")
-                push_and_store(0b01, 0x1a, "\0")
+                %std_store hi(0b01), lo(0x18), "r"
+                %std_store hi(0b01), lo(0x19), "s"
+                %std_store hi(0b01), lo(0x1a), "\0"
             ..ra: ;---> read address (register)
-                push_and_store(0b01, 0x1b, "r")
-                push_and_store(0b01, 0x1c, "a")
-                push_and_store(0b01, 0x1d, "\0")
+                %std_store hi(0b01), lo(0x1b), "r"
+                %std_store hi(0b01), lo(0x1c), "a"
+                %std_store hi(0b01), lo(0x1d), "\0"
             ..ec: ;---> echo input back to user
-                push_and_store(0b01, 0x1e, "e")
-                push_and_store(0b01, 0x1f, "c")
-                push_and_store(0b01, 0x20, "\0")
+                %std_store hi(0b01), lo(0x1e), "e"
+                %std_store hi(0b01), lo(0x1f), "c"
+                %std_store hi(0b01), lo(0x20), "\0"
     main:
         .store_hi2_bits_of_arguments:
-            push_and_store(0b10, 0xaf, 1)
+            %std_store hi(0b10), lo(0xaf), 1
 
         syscall		SYS_CLS
         ldi			r7, T_BUF_START - 0x100 ;----> lower 8 bits of buffer pointer
@@ -520,5 +520,5 @@ terminal:
                     jmp			[.main_loop]
 
     end_copy:
-        copy_stop
+        *_copy_stop
 
