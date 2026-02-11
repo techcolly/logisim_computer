@@ -229,23 +229,13 @@
             syscall SYS_STORE8
     }
 
-    push_and_store_reg({hi2}, {lo8}, r{reg_num}) => asm { ;----> will clobber r0
-            ldi r0, {hi2} ;----> hi2
-            push r0
-            ldi r0, {lo8} ;----> lo8
-            push r0
-            mov r0, r{reg_num} ;----> value
-            push r0
-            syscall SYS_STORE8
-    }
-
     printc({char}, r{reg_num}) => asm {
         ldi r{reg_num}, {char}
         push r{reg_num}
         syscall SYS_PUTC
     }
 
-    deref_argp(arg{arg_num}) => asm { ;---> gets argp value which is a pointer to a string in RAM, clobbers r0,r1, TWO_TMP
+    %deref_arg arg{arg_num} => asm { ;---> gets argp value which is a pointer to a string in RAM, clobbers r0,r1, TWO_TMP
         ;---> puts lo8 in r0
         ldi r3, T_ARGP_{arg_num} - 0x200 ;---> pointer to another pointer for the argument string
         ldi r1, 0b10 ;---> lives in memory area 0x2XX so hi2 bits should be 0b10
@@ -254,7 +244,7 @@
         syscall SYS_LOAD8
     }
 
-    deref_argp_hi2() => asm {
+    %deref_argp_hi2 => asm {
         ldi r3, 0b10
         push r3 ;---> hi2
         ldi r3, T_ARGP_HI2 - 0x200
@@ -263,12 +253,12 @@
     }
     ;-------------------------------------------------------------------------------------> kernel functions
 
-    __printc_no_syscall({char}, r{reg_num}) => asm {
+    %__krnl_printc {char}, @r{reg_num} => asm {
         ldi r{reg_num}, {char}
         st [IO_TERM_PUTC], r{reg_num}
     }
 
-    __kernel_store({address}, {value}, r{reg_num}) => asm  {
+    %__krnl_store addr({address}), {value}, @r{reg_num} => asm  {
         ldi r{reg_num}, {value}
         st [{address}], r{reg_num}
     }

@@ -154,19 +154,19 @@ terminal:
                 call		[print_prompt]
                 ret
             psh:
-                deref_argp_hi2()
+                %deref_argp_hi2
                 mov			r4, r0
                 ldi			r7, 1
 
-                deref_argp(arg1)
+                %deref_arg  arg1
                 call		[helper_arg_ascii_to_hex]
                 push		r0
                 call		[print_prompt]
                 ret
             ec: ;---> this one is a bit confusing
-                deref_argp_hi2() 
+                %deref_argp_hi2 
                 push		r0 ;---> push hi2
-                deref_argp(arg1)
+                %deref_arg  arg1
                 push		r0 ;---> push lo8
                 syscall		SYS_PUTS
                 printc("\n", r0)
@@ -220,19 +220,19 @@ terminal:
                 call		[print_prompt]
                 ret
             s:
-                deref_argp_hi2() ;---> hi2 (of all arg pointers) in r0
+                %deref_argp_hi2 ;---> hi2 (of all arg pointers) in r0
                 mov			r4, r0
                 ldi			r7, 1
 
-                deref_argp(arg1) ;---> lo8 (of arg1 string pointer) in r0
+                %deref_arg  arg1 ;---> lo8 (of arg1 string pointer) in r0
                 call		[helper_arg_ascii_to_hex]
                 mov			r5, r0 ;---> address hi2
 
-                deref_argp(arg2) ;---> lo8 (of arg2 string pointer) in r0
+                %deref_arg  arg2 ;---> lo8 (of arg2 string pointer) in r0
                 call		[helper_arg_ascii_to_hex]
                 mov			r6, r0 ;---> address lo8
 
-                deref_argp(arg3) ;---> lo8 (of arg3 string pointer) in r0
+                %deref_arg  arg3 ;---> lo8 (of arg3 string pointer) in r0
                 call		[helper_arg_ascii_to_hex]
                 mov			r7, r0 ;---> value to store
 
@@ -244,15 +244,15 @@ terminal:
                 call		[print_prompt]
                 ret
             l:
-                deref_argp_hi2()
+                %deref_argp_hi2
                 mov			r4, r0
                 ldi			r7, 1
 
-                deref_argp(arg1)
+                %deref_arg  arg1
                 call		[helper_arg_ascii_to_hex]
                 mov			r5, r0
 
-                deref_argp(arg2)
+                %deref_arg  arg2
                 call		[helper_arg_ascii_to_hex]
                 mov			r6, r0
 

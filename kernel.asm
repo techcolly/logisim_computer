@@ -16,7 +16,7 @@ kernel:
 
         !SET_INSTRUCTION_MODE 0
         !INITIALIZE_STACK_POINTER
-        __printc_no_syscall("B", r0)
+        %__krnl_printc "B", @r0
 
         .os_copy:
             !SET_COPY_MODE_PARAMS 0b0001
@@ -38,42 +38,43 @@ kernel:
 
                 os_initialize:
                     !SET_INSTRUCTION_MODE 1
-                    __printc_no_syscall("O", r0)
+                    %__krnl_printc "O", @r0
 
                     call		[k_prepare_svcids]
                     call		[k_prepare_pgrm_start_ids]
                     
-                    __printc_no_syscall("O", r0)
+                    %__krnl_printc "O", @r0
 
                     .write_flag:
-                        __kernel_store(FLAG + 0x000, "F", r0)
-                        __kernel_store(FLAG + 0x001, "L", r0)
-                        __kernel_store(FLAG + 0x002, "A", r0)
-                        __kernel_store(FLAG + 0x003, "G", r0)
-                        __kernel_store(FLAG + 0x004, "{", r0)
-                        __kernel_store(FLAG + 0x005, "3", r0)
-                        __kernel_store(FLAG + 0x006, "e", r0)
-                        __kernel_store(FLAG + 0x007, "c", r0)
-                        __kernel_store(FLAG + 0x008, "8", r0)
-                        __kernel_store(FLAG + 0x009, "}", r0)
+                        %__krnl_store addr(FLAG + 0x000), "F", @r0
+                        %__krnl_store addr(FLAG + 0x001), "L", @r0
+                        %__krnl_store addr(FLAG + 0x002), "A", @r0
+                        %__krnl_store addr(FLAG + 0x003), "G", @r0
+                        %__krnl_store addr(FLAG + 0x004), "{", @r0
+                        %__krnl_store addr(FLAG + 0x005), "3", @r0
+                        %__krnl_store addr(FLAG + 0x006), "e", @r0
+                        %__krnl_store addr(FLAG + 0x007), "c", @r0
+                        %__krnl_store addr(FLAG + 0x008), "8", @r0
+                        %__krnl_store addr(FLAG + 0x009), "}", @r0
                     .write_hex_table:
-                        __kernel_store(HEX_TBL + 0x000, "0", r0)
-                        __kernel_store(HEX_TBL + 0x001, "1", r0)
-                        __kernel_store(HEX_TBL + 0x002, "2", r0)
-                        __kernel_store(HEX_TBL + 0x003, "3", r0)
-                        __kernel_store(HEX_TBL + 0x004, "4", r0)
-                        __kernel_store(HEX_TBL + 0x005, "5", r0)
-                        __kernel_store(HEX_TBL + 0x006, "6", r0)
-                        __kernel_store(HEX_TBL + 0x007, "7", r0)
-                        __kernel_store(HEX_TBL + 0x008, "8", r0)
-                        __kernel_store(HEX_TBL + 0x009, "9", r0)
-                        __kernel_store(HEX_TBL + 0x00a, "a", r0)
-                        __kernel_store(HEX_TBL + 0x00b, "b", r0)
-                        __kernel_store(HEX_TBL + 0x00c, "c", r0)
-                        __kernel_store(HEX_TBL + 0x00d, "d", r0)
-                        __kernel_store(HEX_TBL + 0x00e, "e", r0)
-                        __kernel_store(HEX_TBL + 0x00f, "f", r0)
-                    __printc_no_syscall("T", r0)
+                        %__krnl_store addr(HEX_TBL + 0x000), "0", @r0
+                        %__krnl_store addr(HEX_TBL + 0x001), "1", @r0
+                        %__krnl_store addr(HEX_TBL + 0x002), "2", @r0
+                        %__krnl_store addr(HEX_TBL + 0x003), "3", @r0
+                        %__krnl_store addr(HEX_TBL + 0x004), "4", @r0
+                        %__krnl_store addr(HEX_TBL + 0x005), "5", @r0
+                        %__krnl_store addr(HEX_TBL + 0x006), "6", @r0
+                        %__krnl_store addr(HEX_TBL + 0x007), "7", @r0
+                        %__krnl_store addr(HEX_TBL + 0x008), "8", @r0
+                        %__krnl_store addr(HEX_TBL + 0x009), "9", @r0
+                        %__krnl_store addr(HEX_TBL + 0x00a), "a", @r0
+                        %__krnl_store addr(HEX_TBL + 0x00b), "b", @r0
+                        %__krnl_store addr(HEX_TBL + 0x00c), "c", @r0
+                        %__krnl_store addr(HEX_TBL + 0x00d), "d", @r0
+                        %__krnl_store addr(HEX_TBL + 0x00e), "e", @r0
+                        %__krnl_store addr(HEX_TBL + 0x00f), "f", @r0
+                        
+                    %__krnl_printc "T", @r0
 
                     ldi			r0, 1
                     push		r0
@@ -290,8 +291,8 @@ kernel:
                         ldr			r0, [r1]
                         ret
                 k__internal__print_k_err:
-                    __printc_no_syscall("K", r1) ;---> this K: means that the kernel is throwing the error instead of someone else
-                    __printc_no_syscall(":", r1) 
+                    %__krnl_printc "K", @r1 ;---> this K: means that the kernel is throwing the error instead of someone else
+                    %__krnl_printc ":", @r1 
                     ret
                 k__internal_error_handler:
                     wsr			ERR_INFO, r1
@@ -300,7 +301,7 @@ kernel:
                     ld			r1, [INFO_ERR] ;---> this function must only clobber r1
                     push		r1
                     call		[k_puthex8]
-                    __printc_no_syscall("\n", r1)
+                    %__krnl_printc "\n", @r1
                     ret
                 k_save_regs: ;---> needs r0 on stack
                     pop			r0
