@@ -1,0 +1,7 @@
+- `000` – PC  
+- `001` – SP  
+- `010` – CSP  
+- `011` – C/R addr  
+- `100` – PGRM_START  
+- `101` – SYSRET_ADDR  
+- `110` – INT_RET_ADDR (unused)

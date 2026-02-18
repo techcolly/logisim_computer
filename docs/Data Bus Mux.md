@@ -1,0 +1,7 @@
+- `000` – ALU_OUT
+- `001` – IMM / LDI_DATA
+- `010` – READ_B
+- `011` – READ_A
+- `100` – SR_READ
+- `101` – RAM_OUTPUT
+- `110` – RAR_LO8
