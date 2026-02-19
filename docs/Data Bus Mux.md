@@ -1,3 +1,5 @@
+# Data Bus Mux
+
 - `000` – ALU_OUT
 - `001` – IMM / LDI_DATA
 - `010` – READ_B

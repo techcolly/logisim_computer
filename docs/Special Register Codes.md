@@ -1,3 +1,5 @@
+# Special Register Codes
+
 - `000` – FLAGS  
 - `001` – SHIFT_AMOUNT  
 - `010` – TWO_TMP  

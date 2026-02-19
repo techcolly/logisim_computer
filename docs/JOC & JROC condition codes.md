@@ -1,3 +1,6 @@
+# Condition Codes for JOC/JROC
+
+- Note: Borrow = NOT Carry  [C=1 means no borrow needed]
 
 | CON_CODE | Definition-based JOC/JROC argument | CMP-based JOC/JROC argument | Jumps if (NZCV)                    | Jumps if (definition)                                                                                  | Jumps if (after CMP) |
 | -------- | ---------------------------------- | --------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------- |

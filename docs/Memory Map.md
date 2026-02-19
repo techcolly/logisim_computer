@@ -1,3 +1,5 @@
+# Memory Map
+
 ### Memory Mapped I/O : 0x3C0–0x3FF
 
 - `0x3FF` – IO_KBD_CLR : write 1 to clear
@@ -47,7 +49,7 @@
 
 - `0x150–0x170` – Program buffer  
 - `0x200–0x207` – Register save area (The kernel saves registers via a syscall)  
-- `0x210–0x21F` – Hex table  
+- `0x210–0x21F` – Hex table → `HEX_TBL`  
 - `0x2A0–0x2A3` – Argument pointers  
   - `0x2A0` → T_ARGP_1  
   - `0x2A1` → T_ARGP_2  
@@ -55,7 +57,7 @@
   - `0x2A3` → T_ARGP_4
   - `0x2AF` → T_ARGP_HI2  
 
-### Kernel Area (0x000–0x070)
+### Kernel Area : 0x000–0x070
 
 - `(0x041–0x04B)` – Service code addresses  
 - `(0x051–0x05F)` – Program start addresses  
