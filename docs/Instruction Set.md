@@ -42,6 +42,11 @@
 - `11110` – SYSCALL  
 - `11111` – SYSRET  
 
+### Special
+- `0xFFFFFF` - end-of-ROM marker; upon detection the CPU disables copy mode and resumes instruction execution
+    - **Note:** An additional instruction may follow to redirect execution to a safe location
+    - **Note:** This is not an instruction
+
 ## General Form of IW
 - `IW: OPCODE[23:19] RD/A[18:16] RS/B[15:13] UNUSED[12:8] IMM8[7:0]`
 - Special Cases
@@ -54,3 +59,4 @@
      - `POP: OPCODE[23:19] RD/A[18:16] UNUSED[15:13] UNUSED[12:0]`
      - `CALL: OPCODE[23:19] UNUSED[18:16] UNUSED[15:13] UNUSED[12:10] ADDR[9:0]`
      - `ISP, RET: OPCODE[23:19] UNUSED[18:0]`
+
