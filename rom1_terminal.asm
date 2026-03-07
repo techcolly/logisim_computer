@@ -53,7 +53,7 @@ terminal:
                 .clear_done:
                     ldi         r7, T_BUF_START - 0x100
                     ret
-            cmd_match_check_helper:
+            helper_cmd_match_check:
                     ldi         r7, T_BUF_START - 0x100
                     push        r1
                     push        r7
@@ -412,7 +412,7 @@ terminal:
 
                 .check_if_c:
                     ldi         r1, T_CMD_C - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_r]
 
                 .c_handler:
@@ -422,7 +422,7 @@ terminal:
 
                 .check_if_r:
                     ldi         r1, T_CMD_R - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_pm]
 
                 .r_handler:
@@ -433,7 +433,7 @@ terminal:
 
                 .check_if_pm:
                     ldi         r1, T_CMD_PM - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_pop]
 
                 .pm_handler:
@@ -444,7 +444,7 @@ terminal:
 
                 .check_if_pop:
                     ldi         r1, T_CMD_POP - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_psh]
 
                 .pop_handler:
@@ -454,7 +454,7 @@ terminal:
 
                 .check_if_psh:
                     ldi         r1, T_CMD_PSH - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_ec]
 
                 .psh_handler:
@@ -464,7 +464,7 @@ terminal:
 
                 .check_if_ec:
                     ldi         r1, T_CMD_EC - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_rs]
 
                 .ec_handler:
@@ -474,7 +474,7 @@ terminal:
 
                 .check_if_rs:
                     ldi         r1, T_CMD_RS - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_ra]
 
                 .rs_handler:
@@ -484,7 +484,7 @@ terminal:
 
                 .check_if_ra:
                     ldi         r1, T_CMD_RA - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_l]
 
                 .ra_handler:
@@ -494,7 +494,7 @@ terminal:
 
                 .check_if_l:
                     ldi         r1, T_CMD_L - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.check_if_s]
 
                 .l_handler:
@@ -504,7 +504,7 @@ terminal:
 
                 .check_if_s:
                     ldi         r1, T_CMD_S - 0x100
-                    call        [cmd_match_check_helper]
+                    call        [helper_cmd_match_check]
                     jnz         [.invalid_command_handler]
 
                 .s_handler:
