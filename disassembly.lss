@@ -1,0 +1,610 @@
+ 0: !___INSTRUCTION_MODE 0 | 0xe80000
+ 1: !___INITIALIZE_STACK_POINTER | 0xc003c0
+ 2: %__krnl_printc "B", @r0 | 0x480042 0xa803fc
+ 4: !___COPY_MODE 0b0001 | 0x480001 0x7c0000
+ 6: ldi r1, 0 | 0x490000
+ 7: wsr TWO_TMP, r1 | 0x7a2000
+ 8: ldi r1, 11 | 0x49000b
+ 9: cmp r0, r1 | 0x982000
+ a: juge [k_panic] | 0x881102
+ b: ldi r1, SYS_TBL_STRT | 0x490041
+ c: add r0, r1 | 0x002000
+ d: ldr r1, [r0] | 0xb10000
+ e: callr [r1] | 0xd83000
+ f: sysret | 0xf80000
+ 10: !___INSTRUCTION_MODE 1 | 0xe80001
+ 11: %__krnl_printc "O", @r0 | 0x48004f 0xa803fc
+ 13: call [k_prepare_svcids] | 0xd80050
+ 14: call [k_prepare_pgrm_start_ids] | 0xd80067
+ 15: %__krnl_printc "O", @r0 | 0x48004f 0xa803fc
+ 17: %__krnl_store addr(FLAG + 0x000), "F", @r0 | 0x480046 0xa80060
+ 19: %__krnl_store addr(FLAG + 0x001), "L", @r0 | 0x48004c 0xa80061
+ 1b: %__krnl_store addr(FLAG + 0x002), "A", @r0 | 0x480041 0xa80062
+ 1d: %__krnl_store addr(FLAG + 0x003), "G", @r0 | 0x480047 0xa80063
+ 1f: %__krnl_store addr(FLAG + 0x004), "{", @r0 | 0x48007b 0xa80064
+ 21: %__krnl_store addr(FLAG + 0x005), "3", @r0 | 0x480033 0xa80065
+ 23: %__krnl_store addr(FLAG + 0x006), "e", @r0 | 0x480065 0xa80066
+ 25: %__krnl_store addr(FLAG + 0x007), "c", @r0 | 0x480063 0xa80067
+ 27: %__krnl_store addr(FLAG + 0x008), "8", @r0 | 0x480038 0xa80068
+ 29: %__krnl_store addr(FLAG + 0x009), "}", @r0 | 0x48007d 0xa80069
+ 2b: %__krnl_store addr(HEX_TBL + 0x000), "0", @r0 | 0x480030 0xa80210
+ 2d: %__krnl_store addr(HEX_TBL + 0x001), "1", @r0 | 0x480031 0xa80211
+ 2f: %__krnl_store addr(HEX_TBL + 0x002), "2", @r0 | 0x480032 0xa80212
+ 31: %__krnl_store addr(HEX_TBL + 0x003), "3", @r0 | 0x480033 0xa80213
+ 33: %__krnl_store addr(HEX_TBL + 0x004), "4", @r0 | 0x480034 0xa80214
+ 35: %__krnl_store addr(HEX_TBL + 0x005), "5", @r0 | 0x480035 0xa80215
+ 37: %__krnl_store addr(HEX_TBL + 0x006), "6", @r0 | 0x480036 0xa80216
+ 39: %__krnl_store addr(HEX_TBL + 0x007), "7", @r0 | 0x480037 0xa80217
+ 3b: %__krnl_store addr(HEX_TBL + 0x008), "8", @r0 | 0x480038 0xa80218
+ 3d: %__krnl_store addr(HEX_TBL + 0x009), "9", @r0 | 0x480039 0xa80219
+ 3f: %__krnl_store addr(HEX_TBL + 0x00a), "a", @r0 | 0x480061 0xa8021a
+ 41: %__krnl_store addr(HEX_TBL + 0x00b), "b", @r0 | 0x480062 0xa8021b
+ 43: %__krnl_store addr(HEX_TBL + 0x00c), "c", @r0 | 0x480063 0xa8021c
+ 45: %__krnl_store addr(HEX_TBL + 0x00d), "d", @r0 | 0x480064 0xa8021d
+ 47: %__krnl_store addr(HEX_TBL + 0x00e), "e", @r0 | 0x480065 0xa8021e
+ 49: %__krnl_store addr(HEX_TBL + 0x00f), "f", @r0 | 0x480066 0xa8021f
+ 4b: %__krnl_printc "T", @r0 | 0x480054 0xa803fc
+ 4d: ldi r0, 1 | 0x480001
+ 4e: push r0 | 0xc80000
+ 4f: jmp [__LOAD_ROM_FILE__] | 0x883906
+ 50: ldi r0, k_getc | 0x48006a
+ 51: st [SYS_GETC + SYS_TBL_STRT], r0 | 0xa80041
+ 52: ldi r0, k_putc | 0x48006c
+ 53: st [SYS_PUTC + SYS_TBL_STRT], r0 | 0xa80042
+ 54: ldi r0, k_puthex8 | 0x48006f
+ 55: st [SYS_PUTHEX8 + SYS_TBL_STRT], r0 | 0xa80043
+ 56: ldi r0, k_puts | 0x4800a3
+ 57: st [SYS_PUTS + SYS_TBL_STRT], r0 | 0xa80044
+ 58: ldi r0, k_readline | 0x4800c5
+ 59: st [SYS_READLINE + SYS_TBL_STRT], r0 | 0xa80045
+ 5a: ldi r0, k_cls | 0x4800c6
+ 5b: st [SYS_CLS + SYS_TBL_STRT], r0 | 0xa80046
+ 5c: ldi r0, k_store8 | 0x4800c9
+ 5d: st [SYS_STORE8 + SYS_TBL_STRT], r0 | 0xa80047
+ 5e: ldi r0, k_load8 | 0x4800da
+ 5f: st [SYS_LOAD8 + SYS_TBL_STRT], r0 | 0xa80048
+ 60: ldi r0, k_cmp_strings | 0x4800af
+ 61: st [SYS_CMP_STR + SYS_TBL_STRT], r0 | 0xa80049
+ 62: ldi r0, k_save_regs | 0x4800f8
+ 63: st [SYS_SAVE_REGS + SYS_TBL_STRT], r0 | 0xa8004a
+ 64: ldi r0, k_ascii_to_hex | 0x480092
+ 65: st [SYS_ASCII_2HEX + SYS_TBL_STRT], r0 | 0xa8004b
+ 66: ret | 0xe00000
+ 67: ldi r0, TERM_STRT_LO8 | 0x480050
+ 68: st [TERM_STRT_TBL_ADDR], r0 | 0xa80051
+ 69: ret | 0xe00000
+ 6a: %__krnl_getc | 0xa003fd
+ 6b: ret | 0xe00000
+ 6c: %__krnl_putc | 0xd00000 0xa803fc
+ 6e: ret | 0xe00000
+ 6f: pop r0 | 0xd00000
+ 70: mov r1, r0 | 0x410000
+ 71: ldi r2, 0b00001111 | 0x4a000f
+ 72: and r0, r2 | 0x204000
+ 73: ldi r2, 0b11110000 | 0x4a00f0
+ 74: and r1, r2 | 0x214000
+ 75: ldi r2, 0x04 | 0x4a0004
+ 76: wsr SHIFT_AMT, r2 | 0x794000
+ 77: shr r1 | 0x190000
+ 78: ldi r2, 0b10 | 0x4a0002
+ 79: wsr TWO_TMP, r2 | 0x7a4000
+ 7a: ldi r2, HEX_TBL - 0x200 | 0x4a0010
+ 7b: add r0, r2 | 0x004000
+ 7c: ldr r0, [r0] | 0xb00000
+ 7d: add r1, r2 | 0x014000
+ 7e: ldr r1, [r1] | 0xb12000
+ 7f: mov r2, r0 | 0x420000
+ 80: push r1 | 0xc82000
+ 81: call [k_putc] | 0xd8006c
+ 82: push r2 | 0xc84000
+ 83: call [k_putc] | 0xd8006c
+ 84: ldi r2, 1 | 0x4a0001
+ 85: wsr SHIFT_AMT, r2 | 0x794000
+ 86: ret | 0xe00000
+ 87: ldi r1, 0 | 0x490000
+ 88: ldi r2, HEX_TBL - 0x200 | 0x4a0010
+ 89: add r2, r1 | 0x022000
+ 8a: ldr r3, [r2] | 0xb34000
+ 8b: cmp r0, r3 | 0x986000
+ 8c: jz [.char_found] | 0x880890
+ 8d: ldi r3, 1 | 0x4b0001
+ 8e: add r1, r3 | 0x016000
+ 8f: jmp [.check] | 0x883888
+ 90: push r1 | 0xc82000
+ 91: ret | 0xe00000
+ 92: ldi r0, 0b10 | 0x480002
+ 93: wsr TWO_TMP, r0 | 0x7a0000
+ 94: pop r0 | 0xd00000
+ 95: st [SV_REG_0], r0 | 0xa80200
+ 96: pop r0 | 0xd00000
+ 97: call [k__internal__convert_char] | 0xd80087
+ 98: ld r0, [SV_REG_0] | 0xa00200
+ 99: call [k__internal__convert_char] | 0xd80087
+ 9a: ldi r0, 4 | 0x480004
+ 9b: wsr SHIFT_AMT, r0 | 0x790000
+ 9c: pop r1 | 0xd10000
+ 9d: pop r0 | 0xd00000
+ 9e: shl r0 | 0x100000
+ 9f: add r0, r1 | 0x002000
+ a0: ldi r1, 1 | 0x490001
+ a1: wsr SHIFT_AMT, r1 | 0x792000
+ a2: ret | 0xe00000
+ a3: pop r0 | 0xd00000
+ a4: pop r1 | 0xd10000
+ a5: wsr TWO_TMP, r1 | 0x7a2000
+ a6: ldr r1, [r0] | 0xb10000
+ a7: ldi r2, 0 | 0x4a0000
+ a8: cmp r1, r2 | 0x994000
+ a9: jz [.print_end] | 0x8808ae
+ aa: st [IO_TERM_PUTC], r1 | 0xa823fc
+ ab: ldi r2, 1 | 0x4a0001
+ ac: add r0, r2 | 0x004000
+ ad: jmp [.printing] | 0x8838a6
+ ae: ret | 0xe00000
+ af: pop r0 | 0xd00000
+ b0: pop r1 | 0xd10000
+ b1: ldi r2, 1 | 0x4a0001
+ b2: wsr TWO_TMP, r2 | 0x7a4000
+ b3: ldr r2, [r0] | 0xb20000
+ b4: ldr r3, [r1] | 0xb32000
+ b5: cmp r2, r3 | 0x9a6000
+ b6: jnz [..strings_different] | 0x880cc1
+ b7: ldi r4, 0 | 0x4c0000
+ b8: cmp r2, r4 | 0x9a8000
+ b9: jnz [..continue] | 0x880cbd
+ ba: cmp r3, r4 | 0x9b8000
+ bb: jz [..strings_same] | 0x8808c3
+ bc: jmp [..continue] | 0x8838bd
+ bd: ldi r2, 1 | 0x4a0001
+ be: add r0, r2 | 0x004000
+ bf: add r1, r2 | 0x014000
+ c0: jmp [.cmp_loop] | 0x8838b3
+ c1: ldi r0, 1 | 0x480001
+ c2: ret | 0xe00000
+ c3: ldi r0, 0 | 0x480000
+ c4: ret | 0xe00000
+ c5: ret | 0xe00000
+ c6: ldi r0, 1 | 0x480001
+ c7: st [IO_TERM_CLR], r0 | 0xa803fb
+ c8: ret | 0xe00000
+ c9: pop r0 | 0xd00000
+ ca: pop r1 | 0xd10000
+ cb: pop r2 | 0xd20000
+ cc: st [SV_REG_1], r1 | 0xa82201
+ cd: ldi r1, 0b01 | 0x490001
+ ce: cmp r2, r1 | 0x9a2000
+ cf: jz [.store8_continue] | 0x8808d6
+ d0: ldi r1, 0b10 | 0x490002
+ d1: cmp r2, r1 | 0x9a2000
+ d2: jz [.store8_continue] | 0x8808d6
+ d3: ldi r1, SYS_ERR_UNAUTH_WRITE | 0x4900a1
+ d4: call [k__internal_error_handler] | 0xd800ef
+ d5: ret | 0xe00000
+ d6: ld r1, [SV_REG_1] | 0xa10201
+ d7: wsr TWO_TMP, r2 | 0x7a4000
+ d8: str [r1], r0 | 0xb82000
+ d9: ret | 0xe00000
+ da: pop r1 | 0xd10000
+ db: pop r0 | 0xd00000
+ dc: st [SV_REG_1], r1 | 0xa82201
+ dd: ldi r1, 0b01 | 0x490001
+ de: cmp r0, r1 | 0x982000
+ df: jz [.load8_continue] | 0x8808e6
+ e0: ldi r1, 0b10 | 0x490002
+ e1: cmp r0, r1 | 0x982000
+ e2: jz [.load8_continue] | 0x8808e6
+ e3: ldi r1, SYS_ERR_UNAUTH_READ | 0x4900a0
+ e4: call [k__internal_error_handler] | 0xd800ef
+ e5: ret | 0xe00000
+ e6: ld r1, [SV_REG_1] | 0xa10201
+ e7: wsr TWO_TMP, r0 | 0x7a0000
+ e8: ldr r0, [r1] | 0xb02000
+ e9: ret | 0xe00000
+ ea: %__krnl_printc "K", @r1 | 0x49004b 0xa823fc
+ ec: %__krnl_printc ":", @r1 | 0x49003a 0xa823fc
+ ee: ret | 0xe00000
+ ef: wsr ERR_INFO, r1 | 0x7d2000
+ f0: st [INFO_ERR], r1 | 0xa821ff
+ f1: call [k__internal__print_k_err] | 0xd800ea
+ f2: ld r1, [INFO_ERR] | 0xa101ff
+ f3: push r1 | 0xc82000
+ f4: call [k_puthex8] | 0xd8006f
+ f5: %__krnl_printc "\n", @r1 | 0x49000a 0xa823fc
+ f7: ret | 0xe00000
+ f8: pop r0 | 0xd00000
+ f9: st [SV_REG_0], r0 | 0xa80200
+ fa: st [SV_REG_1], r1 | 0xa82201
+ fb: st [SV_REG_2], r2 | 0xa84202
+ fc: st [SV_REG_3], r3 | 0xa86203
+ fd: st [SV_REG_4], r4 | 0xa88204
+ fe: st [SV_REG_5], r5 | 0xa8a205
+ ff: st [SV_REG_6], r6 | 0xa8c206
+ 100: st [SV_REG_7], r7 | 0xa8e207
+ 101: ret | 0xe00000
+ 102: ldi r1, SYS_ERR_KRNL_PANIC | 0x4900ee
+ 103: wsr ERR_INFO, r1 | 0x7d2000
+ 104: call [k__internal_error_handler] | 0xd800ef
+ 105: call [on_boot] | 0xd80000
+ 106: pop r0 | 0xd00000
+ 107: ldi r1, 0x050 | 0x490050
+ 108: add r1, r0 | 0x010000
+ 109: ldi r2, 0 | 0x4a0000
+ 10a: wsr TWO_TMP, r2 | 0x7a4000
+ 10b: ldr r2, [r1] | 0xb22000
+ 10c: ldi r1, TERM_STRT_HI2 | 0x490002
+ 10d: wsr TWO_TMP, r1 | 0x7a2000
+ 10e: wsr PGRM_START_ADDR, r2 | 0x7e4000
+ 10f: shl r0 | 0x100000
+ 110: ldi r1, 1 | 0x490001
+ 111: add r0, r1 | 0x002000
+ 112: !___COPY_MODE_REG r0 | 0x7c0000
+ 113: ldi r0, T_PROMPT - 0x100 | 0x480000
+ 114: ldi r1, 0b01 | 0x490001
+ 115: push r1 | 0xc82000
+ 116: push r0 | 0xc80000
+ 117: syscall SYS_PUTS | 0x480003 0xf00000
+ 119: ret | 0xe00000
+ 11a: pop r4 | 0xd40000
+ 11b: ldi r0, T_ERR_TMPLATE - 0x100 | 0x480002
+ 11c: ldi r1, 0b01 | 0x490001
+ 11d: push r1 | 0xc82000
+ 11e: push r0 | 0xc80000
+ 11f: syscall SYS_PUTS | 0x480003 0xf00000
+ 121: push r4 | 0xc88000
+ 122: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 124: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 128: ret | 0xe00000
+ 129: ldi r4, 0 | 0x4c0000
+ 12a: ldi r5, 1 | 0x4d0001
+ 12b: ldi r7, T_BUF_START - 0x100 | 0x4f0050
+ 12c: ldi r6, T_BUF_END - 0x100 | 0x4e0070
+ 12d: push r5 | 0xc8a000
+ 12e: push r7 | 0xc8e000
+ 12f: push r4 | 0xc88000
+ 130: syscall SYS_STORE8 | 0x480006 0xf00000
+ 132: cmp r7, r6 | 0x9fc000
+ 133: jz [.clear_done] | 0x880936
+ 134: add r7, r5 | 0x07a000
+ 135: jmp [.clearing] | 0x88392d
+ 136: ldi r7, T_BUF_START - 0x100 | 0x4f0050
+ 137: ret | 0xe00000
+ 138: ldi r7, T_BUF_START - 0x100 | 0x4f0050
+ 139: push r1 | 0xc82000
+ 13a: push r7 | 0xc8e000
+ 13b: syscall SYS_CMP_STR | 0x480008 0xf00000
+ 13d: ldi r2, 0 | 0x4a0000
+ 13e: cmp r0, r2 | 0x984000
+ 13f: ret | 0xe00000
+ 140: wsr ERR_INFO, r1 | 0x7d2000
+ 141: push r1 | 0xc82000
+ 142: call [print_error] | 0xd8011a
+ 143: ret | 0xe00000
+ 144: mov r2, r0 | 0x420000
+ 145: push r4 | 0xc88000
+ 146: push r2 | 0xc84000
+ 147: syscall SYS_LOAD8 | 0x480007 0xf00000
+ 149: mov r3, r0 | 0x430000
+ 14a: add r2, r7 | 0x02e000
+ 14b: push r4 | 0xc88000
+ 14c: push r2 | 0xc84000
+ 14d: syscall SYS_LOAD8 | 0x480007 0xf00000
+ 14f: mov r2, r0 | 0x420000
+ 150: push r3 | 0xc86000
+ 151: push r2 | 0xc84000
+ 152: syscall SYS_ASCII_2HEX | 0x48000a 0xf00000
+ 154: ret | 0xe00000
+ 155: syscall SYS_CLS | 0x480005 0xf00000
+ 157: call [print_prompt] | 0xd80113
+ 158: ret | 0xe00000
+ 159: syscall SYS_SAVE_REGS | 0x480009 0xf00000
+ 15b: ldi r7, 0b10 | 0x4f0002
+ 15c: ldi r6, 0 | 0x4e0000
+ 15d: ldi r5, 1 | 0x4d0001
+ 15e: ldi r4, 8 | 0x4c0008
+ 15f: push r7 | 0xc8e000
+ 160: push r6 | 0xc8c000
+ 161: syscall SYS_LOAD8 | 0x480007 0xf00000
+ 163: push r0 | 0xc80000
+ 164: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 166: %printc " ", @r3 | 0x4b0020 0xc86000 0x480001 0xf00000
+ 16a: add r6, r5 | 0x06a000
+ 16b: cmp r4, r6 | 0x9cc000
+ 16c: jnz [.print_regs] | 0x880d5f
+ 16d: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 171: call [print_prompt] | 0xd80113
+ 172: ret | 0xe00000
+ 173: ldi r7, 0x00 | 0x4f0000
+ 174: ldi r6, 1 | 0x4e0001
+ 175: ldi r4, 1 | 0x4c0001
+ 176: push r6 | 0xc8c000
+ 177: push r7 | 0xc8e000
+ 178: syscall SYS_LOAD8 | 0x480007 0xf00000
+ 17a: mov r2, r0 | 0x420000
+ 17b: push r2 | 0xc84000
+ 17c: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 17e: ldi r5, 0b00011111 | 0x4d001f
+ 17f: and r5, r7 | 0x25e000
+ 180: ldi r0, 0b00011111 | 0x48001f
+ 181: cmp r5, r0 | 0x9d0000
+ 182: jnz [..space] | 0x880d88
+ 183: %printc "\n", @r1 | 0x49000a 0xc82000 0x480001 0xf00000
+ 187: jmp [..continue] | 0x88398c
+ 188: %printc " ", @r1 | 0x490020 0xc82000 0x480001 0xf00000
+ 18c: add r7, r4 | 0x078000
+ 18d: jc [..are_we_finished] | 0x88118f
+ 18e: jmp [.pmemd_loop] | 0x883976
+ 18f: ldi r5, 0b10 | 0x4d0002
+ 190: cmp r6, r5 | 0x9ea000
+ 191: jnz [...need_pointer_inc] | 0x880d98
+ 192: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 196: call [r] | 0xd80159
+ 197: ret | 0xe00000
+ 198: add r6, r4 | 0x068000
+ 199: jmp [.pmemd_loop] | 0x883976
+ 19a: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 19c: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 1a0: call [print_prompt] | 0xd80113
+ 1a1: ret | 0xe00000
+ 1a2: %deref_argp_hi2 | 0x4b0002 0xc86000 0x4b00af 0xc86000 0x480007 0xf00000
+ 1a8: mov r4, r0 | 0x440000
+ 1a9: ldi r7, 1 | 0x4f0001
+ 1aa: %deref_arg arg1 | 0x4b00a0 0x490002 0xc82000 0xc86000 0x480007 0xf00000
+ 1b0: call [helper_arg_ascii_to_hex] | 0xd80144
+ 1b1: push r0 | 0xc80000
+ 1b2: call [print_prompt] | 0xd80113
+ 1b3: ret | 0xe00000
+ 1b4: %deref_argp_hi2 | 0x4b0002 0xc86000 0x4b00af 0xc86000 0x480007 0xf00000
+ 1ba: push r0 | 0xc80000
+ 1bb: %deref_arg arg1 | 0x4b00a0 0x490002 0xc82000 0xc86000 0x480007 0xf00000
+ 1c1: push r0 | 0xc80000
+ 1c2: syscall SYS_PUTS | 0x480003 0xf00000
+ 1c4: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 1c8: call [print_prompt] | 0xd80113
+ 1c9: ret | 0xe00000
+ 1ca: push r0 | 0xc80000
+ 1cb: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 1cd: %printc " ", @r0 | 0x480020 0xc80000 0x480001 0xf00000
+ 1d1: ret | 0xe00000
+ 1d2: rsr r0, FLAGS | 0x700000
+ 1d3: call [helper_rs] | 0xd801ca
+ 1d4: rsr r0, SHIFT_AMT | 0x702000
+ 1d5: call [helper_rs] | 0xd801ca
+ 1d6: rsr r0, TWO_TMP | 0x704000
+ 1d7: call [helper_rs] | 0xd801ca
+ 1d8: rsr r0, TST_LED | 0x706000
+ 1d9: call [helper_rs] | 0xd801ca
+ 1da: rsr r0, COPY_MODE | 0x708000
+ 1db: call [helper_rs] | 0xd801ca
+ 1dc: rsr r0, ERR_INFO | 0x70a000
+ 1dd: call [helper_rs] | 0xd801ca
+ 1de: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 1e2: call [print_prompt] | 0xd80113
+ 1e3: ret | 0xe00000
+ 1e4: rsr r1, TWO_TMP | 0x714000
+ 1e5: push r1 | 0xc82000
+ 1e6: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 1e8: push r3 | 0xc86000
+ 1e9: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 1eb: %printc " ", @r0 | 0x480020 0xc80000 0x480001 0xf00000
+ 1ef: ret | 0xe00000
+ 1f0: rar r3, PC | 0x5b0000
+ 1f1: call [helper_ra] | 0xd801e4
+ 1f2: rar r3, SP | 0x5b2000
+ 1f3: call [helper_ra] | 0xd801e4
+ 1f4: rar r3, CSP | 0x5b4000
+ 1f5: call [helper_ra] | 0xd801e4
+ 1f6: rar r3, C_R | 0x5b6000
+ 1f7: call [helper_ra] | 0xd801e4
+ 1f8: rar r3, PGRM_START | 0x5b8000
+ 1f9: call [helper_ra] | 0xd801e4
+ 1fa: rar r3, SYSRET | 0x5ba000
+ 1fb: call [helper_ra] | 0xd801e4
+ 1fc: rar r3, INT_RET | 0x5bc000
+ 1fd: call [helper_ra] | 0xd801e4
+ 1fe: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 202: call [print_prompt] | 0xd80113
+ 203: ret | 0xe00000
+ 204: %deref_argp_hi2 | 0x4b0002 0xc86000 0x4b00af 0xc86000 0x480007 0xf00000
+ 20a: mov r4, r0 | 0x440000
+ 20b: ldi r7, 1 | 0x4f0001
+ 20c: %deref_arg arg1 | 0x4b00a0 0x490002 0xc82000 0xc86000 0x480007 0xf00000
+ 212: call [helper_arg_ascii_to_hex] | 0xd80144
+ 213: mov r5, r0 | 0x450000
+ 214: %deref_arg arg2 | 0x4b00a1 0x490002 0xc82000 0xc86000 0x480007 0xf00000
+ 21a: call [helper_arg_ascii_to_hex] | 0xd80144
+ 21b: mov r6, r0 | 0x460000
+ 21c: %deref_arg arg3 | 0x4b00a2 0x490002 0xc82000 0xc86000 0x480007 0xf00000
+ 222: call [helper_arg_ascii_to_hex] | 0xd80144
+ 223: mov r7, r0 | 0x470000
+ 224: push r5 | 0xc8a000
+ 225: push r6 | 0xc8c000
+ 226: push r7 | 0xc8e000
+ 227: syscall SYS_STORE8 | 0x480006 0xf00000
+ 229: call [print_prompt] | 0xd80113
+ 22a: ret | 0xe00000
+ 22b: %deref_argp_hi2 | 0x4b0002 0xc86000 0x4b00af 0xc86000 0x480007 0xf00000
+ 231: mov r4, r0 | 0x440000
+ 232: ldi r7, 1 | 0x4f0001
+ 233: %deref_arg arg1 | 0x4b00a0 0x490002 0xc82000 0xc86000 0x480007 0xf00000
+ 239: call [helper_arg_ascii_to_hex] | 0xd80144
+ 23a: mov r5, r0 | 0x450000
+ 23b: %deref_arg arg2 | 0x4b00a1 0x490002 0xc82000 0xc86000 0x480007 0xf00000
+ 241: call [helper_arg_ascii_to_hex] | 0xd80144
+ 242: mov r6, r0 | 0x460000
+ 243: push r5 | 0xc8a000
+ 244: push r6 | 0xc8c000
+ 245: syscall SYS_LOAD8 | 0x480007 0xf00000
+ 247: push r0 | 0xc80000
+ 248: syscall SYS_PUTHEX8 | 0x480002 0xf00000
+ 24a: %printc "\n", @r0 | 0x48000a 0xc80000 0x480001 0xf00000
+ 24e: call [print_prompt] | 0xd80113
+ 24f: ret | 0xe00000
+ 250: %std_store hi(0b01), lo(0x00), ">" | 0x490001 0xc82000 0x490000 0xc82000 0x49003e 0xc82000 0x480006 0xf00000
+ 258: %std_store hi(0b01), lo(0x01), "\0" | 0x490001 0xc82000 0x490001 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 260: %std_store hi(0b01), lo(0x02), "E" | 0x490001 0xc82000 0x490002 0xc82000 0x490045 0xc82000 0x480006 0xf00000
+ 268: %std_store hi(0b01), lo(0x03), ":" | 0x490001 0xc82000 0x490003 0xc82000 0x49003a 0xc82000 0x480006 0xf00000
+ 270: %std_store hi(0b01), lo(0x04), "\0" | 0x490001 0xc82000 0x490004 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 278: %std_store hi(0b01), lo(0x05), "c" | 0x490001 0xc82000 0x490005 0xc82000 0x490063 0xc82000 0x480006 0xf00000
+ 280: %std_store hi(0b01), lo(0x06), "\0" | 0x490001 0xc82000 0x490006 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 288: %std_store hi(0b01), lo(0x07), "r" | 0x490001 0xc82000 0x490007 0xc82000 0x490072 0xc82000 0x480006 0xf00000
+ 290: %std_store hi(0b01), lo(0x08), "\0" | 0x490001 0xc82000 0x490008 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 298: %std_store hi(0b01), lo(0x09), "p" | 0x490001 0xc82000 0x490009 0xc82000 0x490070 0xc82000 0x480006 0xf00000
+ 2a0: %std_store hi(0b01), lo(0x0a), "m" | 0x490001 0xc82000 0x49000a 0xc82000 0x49006d 0xc82000 0x480006 0xf00000
+ 2a8: %std_store hi(0b01), lo(0x0b), "\0" | 0x490001 0xc82000 0x49000b 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 2b0: %std_store hi(0b01), lo(0x0c), "p" | 0x490001 0xc82000 0x49000c 0xc82000 0x490070 0xc82000 0x480006 0xf00000
+ 2b8: %std_store hi(0b01), lo(0x0d), "s" | 0x490001 0xc82000 0x49000d 0xc82000 0x490073 0xc82000 0x480006 0xf00000
+ 2c0: %std_store hi(0b01), lo(0x0e), "h" | 0x490001 0xc82000 0x49000e 0xc82000 0x490068 0xc82000 0x480006 0xf00000
+ 2c8: %std_store hi(0b01), lo(0x0f), "\0" | 0x490001 0xc82000 0x49000f 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 2d0: %std_store hi(0b01), lo(0x10), "p" | 0x490001 0xc82000 0x490010 0xc82000 0x490070 0xc82000 0x480006 0xf00000
+ 2d8: %std_store hi(0b01), lo(0x11), "o" | 0x490001 0xc82000 0x490011 0xc82000 0x49006f 0xc82000 0x480006 0xf00000
+ 2e0: %std_store hi(0b01), lo(0x12), "p" | 0x490001 0xc82000 0x490012 0xc82000 0x490070 0xc82000 0x480006 0xf00000
+ 2e8: %std_store hi(0b01), lo(0x13), "\0" | 0x490001 0xc82000 0x490013 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 2f0: %std_store hi(0b01), lo(0x14), "s" | 0x490001 0xc82000 0x490014 0xc82000 0x490073 0xc82000 0x480006 0xf00000
+ 2f8: %std_store hi(0b01), lo(0x15), "\0" | 0x490001 0xc82000 0x490015 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 300: %std_store hi(0b01), lo(0x16), "l" | 0x490001 0xc82000 0x490016 0xc82000 0x49006c 0xc82000 0x480006 0xf00000
+ 308: %std_store hi(0b01), lo(0x17), "\0" | 0x490001 0xc82000 0x490017 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 310: %std_store hi(0b01), lo(0x18), "r" | 0x490001 0xc82000 0x490018 0xc82000 0x490072 0xc82000 0x480006 0xf00000
+ 318: %std_store hi(0b01), lo(0x19), "s" | 0x490001 0xc82000 0x490019 0xc82000 0x490073 0xc82000 0x480006 0xf00000
+ 320: %std_store hi(0b01), lo(0x1a), "\0" | 0x490001 0xc82000 0x49001a 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 328: %std_store hi(0b01), lo(0x1b), "r" | 0x490001 0xc82000 0x49001b 0xc82000 0x490072 0xc82000 0x480006 0xf00000
+ 330: %std_store hi(0b01), lo(0x1c), "a" | 0x490001 0xc82000 0x49001c 0xc82000 0x490061 0xc82000 0x480006 0xf00000
+ 338: %std_store hi(0b01), lo(0x1d), "\0" | 0x490001 0xc82000 0x49001d 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 340: %std_store hi(0b01), lo(0x1e), "e" | 0x490001 0xc82000 0x49001e 0xc82000 0x490065 0xc82000 0x480006 0xf00000
+ 348: %std_store hi(0b01), lo(0x1f), "c" | 0x490001 0xc82000 0x49001f 0xc82000 0x490063 0xc82000 0x480006 0xf00000
+ 350: %std_store hi(0b01), lo(0x20), "\0" | 0x490001 0xc82000 0x490020 0xc82000 0x490000 0xc82000 0x480006 0xf00000
+ 358: %std_store hi(0b10), lo(0xaf), 1 | 0x490002 0xc82000 0x4900af 0xc82000 0x490001 0xc82000 0x480006 0xf00000
+ 360: syscall SYS_CLS | 0x480005 0xf00000
+ 362: ldi r7, T_BUF_START - 0x100 | 0x4f0050
+ 363: call [print_prompt] | 0xd80113
+ 364: syscall SYS_GETC | 0x480000 0xf00000
+ 366: ldi r1, "\0" | 0x490000
+ 367: cmp r0, r1 | 0x982000
+ 368: jz [.main_loop] | 0x880b64
+ 369: ldi r1, 8 | 0x490008
+ 36a: cmp r0, r1 | 0x982000
+ 36b: jz [.backspace_handler] | 0x880b7c
+ 36c: ldi r1, "\n" | 0x49000a
+ 36d: cmp r0, r1 | 0x982000
+ 36e: jz [.newline_handler] | 0x880b89
+ 36f: ldi r1, 0b01 | 0x490001
+ 370: mov r6, r0 | 0x460000
+ 371: push r1 | 0xc82000
+ 372: push r7 | 0xc8e000
+ 373: push r0 | 0xc80000
+ 374: syscall SYS_STORE8 | 0x480006 0xf00000
+ 376: ldi r0, 1 | 0x480001
+ 377: add r7, r0 | 0x070000
+ 378: push r6 | 0xc8c000
+ 379: syscall SYS_PUTC | 0x480001 0xf00000
+ 37b: jmp [.main_loop] | 0x883b64
+ 37c: mov r6, r0 | 0x460000
+ 37d: ldi r1, 0b01 | 0x490001
+ 37e: sub r7, r1 | 0x0f2000
+ 37f: push r1 | 0xc82000
+ 380: push r7 | 0xc8e000
+ 381: sub r1, r1 | 0x092000
+ 382: push r1 | 0xc82000
+ 383: syscall SYS_STORE8 | 0x480006 0xf00000
+ 385: push r6 | 0xc8c000
+ 386: syscall SYS_PUTC | 0x480001 0xf00000
+ 388: jmp [.main_loop] | 0x883b64
+ 389: push r0 | 0xc80000
+ 38a: syscall SYS_PUTC | 0x480001 0xf00000
+ 38c: ldi r7, T_BUF_START - 0x100 | 0x4f0050
+ 38d: ldi r4, " " | 0x4c0020
+ 38e: ldi r6, "\0" | 0x4e0000
+ 38f: ldi r5, 1 | 0x4d0001
+ 390: ldi r3, 0 | 0x4b0000
+ 391: push r5 | 0xc8a000
+ 392: push r7 | 0xc8e000
+ 393: syscall SYS_LOAD8 | 0x480007 0xf00000
+ 395: cmp r0, r4 | 0x988000
+ 396: jz [...is_a_space] | 0x880b9b
+ 397: add r7, r5 | 0x07a000
+ 398: cmp r0, r6 | 0x98c000
+ 399: jz [.check_if_c] | 0x880bad
+ 39a: jmp [..test_for_command_end] | 0x883b91
+ 39b: ldi r1, "\0" | 0x490000
+ 39c: push r5 | 0xc8a000
+ 39d: push r7 | 0xc8e000
+ 39e: push r1 | 0xc82000
+ 39f: syscall SYS_STORE8 | 0x480006 0xf00000
+ 3a1: add r7, r5 | 0x07a000
+ 3a2: ldi r0, 0b10 | 0x480002
+ 3a3: push r0 | 0xc80000
+ 3a4: ldi r0, 0x0a0 | 0x4800a0
+ 3a5: add r0, r3 | 0x006000
+ 3a6: push r0 | 0xc80000
+ 3a7: ldi r0, 1 | 0x480001
+ 3a8: add r3, r0 | 0x030000
+ 3a9: push r7 | 0xc8e000
+ 3aa: syscall SYS_STORE8 | 0x480006 0xf00000
+ 3ac: jmp [..test_for_command_end] | 0x883b91
+ 3ad: ldi r1, T_CMD_C - 0x100 | 0x490005
+ 3ae: call [helper_cmd_match_check] | 0xd80138
+ 3af: jnz [.check_if_r] | 0x880fb3
+ 3b0: call [c] | 0xd80155
+ 3b1: call [clear_buffer] | 0xd80129
+ 3b2: jmp [.main_loop] | 0x883b64
+ 3b3: ldi r1, T_CMD_R - 0x100 | 0x490007
+ 3b4: call [helper_cmd_match_check] | 0xd80138
+ 3b5: jnz [.check_if_pm] | 0x880fba
+ 3b6: push r0 | 0xc80000
+ 3b7: call [r] | 0xd80159
+ 3b8: call [clear_buffer] | 0xd80129
+ 3b9: jmp [.main_loop] | 0x883b64
+ 3ba: ldi r1, T_CMD_PM - 0x100 | 0x490009
+ 3bb: call [helper_cmd_match_check] | 0xd80138
+ 3bc: jnz [.check_if_pop] | 0x880fc1
+ 3bd: push r0 | 0xc80000
+ 3be: call [pm] | 0xd80173
+ 3bf: call [clear_buffer] | 0xd80129
+ 3c0: jmp [.main_loop] | 0x883b64
+ 3c1: ldi r1, T_CMD_POP - 0x100 | 0x490010
+ 3c2: call [helper_cmd_match_check] | 0xd80138
+ 3c3: jnz [.check_if_psh] | 0x880fc7
+ 3c4: call [pop] | 0xd8019a
+ 3c5: call [clear_buffer] | 0xd80129
+ 3c6: jmp [.main_loop] | 0x883b64
+ 3c7: ldi r1, T_CMD_PSH - 0x100 | 0x49000c
+ 3c8: call [helper_cmd_match_check] | 0xd80138
+ 3c9: jnz [.check_if_ec] | 0x880fcd
+ 3ca: call [psh] | 0xd801a2
+ 3cb: call [clear_buffer] | 0xd80129
+ 3cc: jmp [.main_loop] | 0x883b64
+ 3cd: ldi r1, T_CMD_EC - 0x100 | 0x49001e
+ 3ce: call [helper_cmd_match_check] | 0xd80138
+ 3cf: jnz [.check_if_rs] | 0x880fd3
+ 3d0: call [ec] | 0xd801b4
+ 3d1: call [clear_buffer] | 0xd80129
+ 3d2: jmp [.main_loop] | 0x883b64
+ 3d3: ldi r1, T_CMD_RS - 0x100 | 0x490018
+ 3d4: call [helper_cmd_match_check] | 0xd80138
+ 3d5: jnz [.check_if_ra] | 0x880fd9
+ 3d6: call [rs] | 0xd801d2
+ 3d7: call [clear_buffer] | 0xd80129
+ 3d8: jmp [.main_loop] | 0x883b64
+ 3d9: ldi r1, T_CMD_RA - 0x100 | 0x49001b
+ 3da: call [helper_cmd_match_check] | 0xd80138
+ 3db: jnz [.check_if_l] | 0x880fdf
+ 3dc: call [ra] | 0xd801f0
+ 3dd: call [clear_buffer] | 0xd80129
+ 3de: jmp [.main_loop] | 0x883b64
+ 3df: ldi r1, T_CMD_L - 0x100 | 0x490016
+ 3e0: call [helper_cmd_match_check] | 0xd80138
+ 3e1: jnz [.check_if_s] | 0x880fe5
+ 3e2: call [l] | 0xd8022b
+ 3e3: call [clear_buffer] | 0xd80129
+ 3e4: jmp [.main_loop] | 0x883b64
+ 3e5: ldi r1, T_CMD_S - 0x100 | 0x490014
+ 3e6: call [helper_cmd_match_check] | 0xd80138
+ 3e7: jnz [.invalid_command_handler] | 0x880feb
+ 3e8: call [s] | 0xd80204
+ 3e9: call [clear_buffer] | 0xd80129
+ 3ea: jmp [.main_loop] | 0x883b64
+ 3eb: ldi r1, ERR_INVAL_CMD | 0x490001
+ 3ec: call [error_handler] | 0xd80140
+ 3ed: call [print_prompt] | 0xd80113
+ 3ee: call [clear_buffer] | 0xd80129
+ 3ef: jmp [.main_loop] | 0x883b64
+ 3f0: *_copy_stop | 0xffffff
