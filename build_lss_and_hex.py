@@ -1,38 +1,4 @@
 #!/usr/bin/env python3
-"""
-Build .txt/.hex listings from one or more .asm files (or file stems),
-clean the .txt files down to valid listing lines, then merge them into
-a single combined .lss file.
-
-Accepted input forms:
-  python build_lss.py kernel rom1_terminal
-  python build_lss.py kernel.asm rom1_terminal.asm
-  python build_lss.py kernel rom1_terminal.asm
-
-Important:
-- .asm source files must be placed inside the ./assembly folder.
-- The script will only look for input assembly files there.
-
-Outputs for each input stem:
-  <stem>.txt
-  <stem>.hex
-
-Merged output:
-  disassembly.lss
-
-.lss output format:
-  <space><hex_addr_no_leading_zeros>: <instruction text> | <raw bytes>
-
-Rules:
-1) Uses the MIDDLE column ("addr") as the instruction address.
-2) Uses the text AFTER ';' as the instruction/comment text.
-3) Multi-word lines (macros / pseudo-ops) are NOT expanded.
-4) Every line shows raw bytes.
-   - single-word line: | 0x480002
-   - multi-word line:  | 0x48000a 0xc80000 0x480001 0xf00000
-5) Label-only lines like "kernel:" or ".main_loop:" are removed from the .lss.
-6) If two input files define the same address, the later file on the command line wins.
-"""
 
 from __future__ import annotations
 
