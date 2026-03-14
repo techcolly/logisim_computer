@@ -11,6 +11,6 @@ The entire CPU was made in one `.circ` file. The CPU is 8 bits, with a 24-bit fi
 - Memory-mapped I/O
 - User/Kernel Mode & Privilege Seperation (including `syscall`/`sysret`)
 
-On the software side, this project includes a small monolithic kernel and a terminal program. This project also includes a CTF-style challenge, where one may attempt to display the flag string in the terminal.
+On the software side, this project includes a small monolithic kernel and a terminal program. This project also includes a CTF-style challenge, where one may attempt to display the flag string (at `0x060`) in the terminal.
 
 For more information see the [documents folder](/docs), as everything is **extensively** documented there.
