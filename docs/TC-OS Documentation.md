@@ -7,6 +7,7 @@ There are 11 valid system calls, but the kernel will only perform a permission c
 
 When the system starts, the kernel will initialize the instruction mode and stack pointer. It will then begin the process of copying kernel functions into IRAM. Afterwards, the kernel will begin initializing the operating system itself. Control will be transferred to the terminal once the early boot phase ends and the terminal ROM is copied into IRAM. 
 
+**Note**: If a function throws an error, the error code will be returned in `r1`.
 ## User-Facing Kernel Functions
 | Syscall ID Symbol | Kernel Function  | What it does                                    | Args (Popped Order)     | Return (rX)                              | Registers Clobbered              | Uses Specials                    | Special Notes                                                        |
 | ----------------- | ---------------- | ----------------------------------------------- | ---------------------- | ----------------------------------------- | -------------------------------- | -------------------------------- | -------------------------------------------------------------------- |
