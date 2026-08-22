@@ -1,209 +1,142 @@
-#include "parser.h"
+#pragma once
 
-#include <algorithm>
+#include "lexer.h"
+#include <vector>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <variant>
+#include <iostream>
 
-Token Parser::peek() {
-    return tokens[current];
-}
+struct ASTNode;
 
-Token Parser::advance() {
-    Token t = tokens[current];
-    if (tokens[current].type != tokenType::END) current++;
+struct BlockNode {
+    std::vector<std::unique_ptr<ASTNode>> statements;
+};
 
-    return t;
-}
+struct ReturnNode {
+    std::unique_ptr<ASTNode> returnValue;
+};
 
-bool Parser::check(const tokenType& type) {
-    return (tokens[current].type == type);
-}
+struct IfNode {
+    std::unique_ptr<ASTNode> condition;
+    std::unique_ptr<ASTNode> block;
+};
 
-bool Parser::match(const tokenType& type) {
-    if (check(type)) {
-        Token t = advance();
-        return true;
-    }
-    return false;
-}
+struct WhileNode {
+    std::unique_ptr<ASTNode> condition;
+    std::unique_ptr<ASTNode> block;
+};
 
-std::unique_ptr<ASTNode> Parser::parseAssignment() {
-    std::unique_ptr<ASTNode> left = parseEquality();
+struct ForNode {
+    std::unique_ptr<ASTNode> initialization;
+    std::unique_ptr<ASTNode> condition;
+    std::unique_ptr<ASTNode> increment;
+    std::unique_ptr<ASTNode> block;
+};
 
-    if (peek().lexeme == "=") {
+struct AssignmentBranchNode {
+    std::unique_ptr<ASTNode> varRef;
+    std::unique_ptr<ASTNode> value;
+};
 
-        if (!std::holds_alternative<VarRefNode>(left->value)) {
-            throw std::runtime_error("Incorrect assignment syntax.");
-        }
-        else {
-            Token t = peek();
-            advance();
+struct AssignmentNode {
+    std::string value;
+};
 
-            std::unique_ptr<ASTNode> right = parseAssignment();
+struct VarRefNode {
+    std::string varRef;
+};
 
+struct FuncIdentifier {
+    std::string funcIdentifier;
+};
 
-            std::unique_ptr<ASTNode> newTree = std::make_unique<ASTNode>();
+struct DataTypeNode {
+    std::string dataType;
+};
 
-            newTree->value = AssignmentBranchNode(std::move(left), std::move(right));
-            left = std::move(newTree);
-        }
-    }
+struct DeclarationNode {
+    std::unique_ptr<ASTNode> dataType;
+    std::unique_ptr<ASTNode> varAssignment;
+};
 
-    return left;
-}
+struct ParameterNode {
+    std::unique_ptr<ASTNode> dataType;
+    std::unique_ptr<ASTNode> varAssignment;
+};
 
-std::unique_ptr<ASTNode> Parser::parseEquality() {
-    std::unique_ptr<ASTNode> left = parseShift();
+struct FunctionDecNode {
+    std::unique_ptr<ASTNode> returnType;
+    std::unique_ptr<ASTNode> funcIdentifer;
+    std::vector<std::unique_ptr<ASTNode>> parameters;
+    std::unique_ptr<ASTNode> block;
+};
 
-    while (peek().lexeme == "==") {
-        Token op = peek();
-        advance();
+struct FunctionCallNode {
+    std::unique_ptr<ASTNode> funcIdentifier;
+    std::vector<std::unique_ptr<ASTNode>> parameters;
+};
 
-        std::unique_ptr<ASTNode> right = parseShift();
+struct NumLitNode {
+    int num;
+};
 
-        std::unique_ptr<ASTNode> subTree = std::make_unique<ASTNode>();
-        subTree->value = BinaryExprNode(op,std::move(left),std::move(right));
-        left = std::move(subTree);
-    }
+struct StringNode {
+    std::string value;
+};
 
-    return left;
-}
+struct BinaryExprNode {
+    Token op;
+    std::unique_ptr<ASTNode> left, right;
+};
+struct UnaryExprNode {
+    Token op;
+    std::unique_ptr<ASTNode> value;
+};
 
-std::unique_ptr<ASTNode> Parser::parseShift() {
-    std::unique_ptr<ASTNode> left = parseAdditive();
+using ASTNodeValue = std::variant<NumLitNode, BinaryExprNode, AssignmentBranchNode, AssignmentNode, VarRefNode, FuncIdentifier,
+    StringNode, UnaryExprNode, BlockNode, ReturnNode, IfNode, WhileNode, ForNode, DeclarationNode, DataTypeNode, FunctionDecNode,
+    ParameterNode, FunctionCallNode>;
 
-    while (peek().lexeme == "<<" || peek().lexeme == ">>") {
-        Token op = peek();
-        advance();
+struct ASTNode {
+    ASTNodeValue value;
+};
 
-        std::unique_ptr<ASTNode> right = parseAdditive();
+class Parser {
+public:
+    static std::unique_ptr<ASTNode> parse(std::vector<Token>& inputtedTokens);
+    static void printAST(const ASTNode& node, int depth); // prints newly parsed AST
+private:
+    static inline std::vector<Token> tokens;
+    static inline int current;
 
-        std::unique_ptr<ASTNode> subTree = std::make_unique<ASTNode>();
-        subTree->value = BinaryExprNode(op, std::move(left), std::move(right));
-        left = std::move(subTree);
-    }
-    return left;
-}
+    static Token peek(); // returns cur token
+    static Token advance(); // increments to the next token and returns the one before it
+    static bool check(const tokenType& type); // returns true based on if current token is of the inputted through token type
+    static bool match(const tokenType& type); // if current token is of inputted token type then it calls the advance function and returns true
 
-std::unique_ptr<ASTNode> Parser::parseAdditive() {
-    // begin creating left subtree here
-    std::unique_ptr<ASTNode> left = parseMultaplacative();
-
-    // checks if current token is additive, and continously creates a new sub tree in an order thats mathematically correct
-    while (peek().lexeme == "+" || peek().lexeme == "-") {
-        Token op = peek();
-        advance();
-
-        // create new right sub tree continously
-        std::unique_ptr<ASTNode> right = parseMultaplacative();
-
-        /*
-         *  every thing found in the right tree gets put together into a new subtree that includes both right and left
-         *  sub trees and the finally moves that pointer over to the left subtree and the loop continues again,
-         *  this naturally orders every thing correctly so once evaluated leads to the correct answer
-        */
-        std::unique_ptr<ASTNode> newTree = std::make_unique<ASTNode>();
-        newTree->value = BinaryExprNode(op, std::move(left), std::move(right));
-        left = std::move(newTree);
-    }
-
-    return left;
-}
-
-// this function follows the same structure as parseAdditive
-std::unique_ptr<ASTNode> Parser::parseMultaplacative() {
-    std::unique_ptr<ASTNode> left = parseUnary();
-
-    while (peek().lexeme == "*" || peek().lexeme == "/") {
-        Token op = peek();
-        advance();
-        std::unique_ptr<ASTNode> right = parsePrimary();
-
-        std::unique_ptr<ASTNode> newTree = std::make_unique<ASTNode>();
-        newTree->value = BinaryExprNode(op, std::move(left), std::move(right));
-        left = std::move(newTree);
-    }
-
-    return left;
-}
-
-// continously checks for stacking unary operators and creates a new sub tree that contains every '-' and a num literal
-std::unique_ptr<ASTNode> Parser::parseUnary() {
-    std::unique_ptr<ASTNode> newTree;
-
-    if (peek().lexeme == "-") {
-        Token t = peek();
-        advance();
-
-        newTree = std::make_unique<ASTNode>();
-        newTree->value = UnaryExprNode(t,parseUnary());
-    }
-
-    if (newTree) {
-        return newTree;
-    }
-    return parsePrimary();
-}
-
-std::unique_ptr<ASTNode> Parser::parsePrimary() {
-    // access current token and creating pointer to a AST node to possibly store that token's lexeme into
-    Token t = peek();
-    std::unique_ptr<ASTNode> primNode = std::make_unique<ASTNode>();
-
-    // checks if token is of a primary type and assigns to the primary node as AST Node that varies on its AST type
-    // depending on what the token is, if its not a primary then an exception is thrown
-    if (match(tokenType::STRING)) {
-        primNode->value = StringNode(t.lexeme);
-    }
-    else if (match(tokenType::NUMBER)) {
-        primNode->value = NumLitNode(std::stoi(t.lexeme));
-    }
-    else if (match(tokenType::IDENTIFIER)) {
-        primNode->value = VarRefNode(t.lexeme);
-    }
-    else {
-        throw std::runtime_error("Expected an expression.");
-    }
-
-    return primNode;
-}
-
-void Parser::printAST(const ASTNode& node, int depth) {
-    std::string indent(depth * 2, ' ');
-
-    std::visit([&](const auto& n) {
-        using T = std::decay_t<decltype(n)>;
-
-        if constexpr (std::is_same_v<T, NumLitNode>) {
-            std::cout << indent << "NumLit(" << n.num << ")\n";
-        }
-        else if constexpr (std::is_same_v<T, VarRefNode>) {
-            std::cout << indent << "VarRef(" << n.varRef << ")\n";
-        }
-        else if constexpr (std::is_same_v<T, StringNode>) {
-            std::cout << indent << "StringLit(" << n.value << ")\n";
-        }
-        else if constexpr (std::is_same_v<T, UnaryExprNode>) {
-            std::cout << indent << "UnaryExpr(" << n.op.lexeme << ")\n";
-            printAST(*n.value, depth + 1);
-        }
-        else if constexpr (std::is_same_v<T, BinaryExprNode>) {
-            std::cout << indent << "BinaryExpr(" << n.op.lexeme << ")\n";
-            std::cout << indent << "  left:\n";
-            printAST(*n.left, depth + 2);
-            std::cout << indent << "  right:\n";
-            printAST(*n.right, depth + 2);
-        }
-        else if constexpr (std::is_same_v<T, AssignmentBranchNode>) {
-            std::cout << indent << "Assignment\n";
-            std::cout << indent << "  target:\n";
-            printAST(*n.varRef, depth + 2);
-            std::cout << indent << "  value:\n";
-            printAST(*n.value, depth + 2);
-        }
-    }, node.value);
-}
-
-std::unique_ptr<ASTNode> Parser::parse(std::vector<Token>& inputtedTokens) {
-    tokens = inputtedTokens;
-    current = 0;
-    return parseAssignment();
-}
+    // below contains the hiearchy of parsing functions, since this compiler will be using descentive recursion to parse through tokens
+    // the parsing hiearchy is ordered from first function right below this to the final function at the end
+    static std::unique_ptr<ASTNode> parseFunctionDeclaration(std::unique_ptr<ASTNode> dataTypeNode);
+    static std::unique_ptr<ASTNode> determineDeclaration();
+    static std::unique_ptr<ASTNode> parseFunctionCall(std::unique_ptr<ASTNode> funcIdentifier);
+    static std::unique_ptr<ASTNode> parseReturn();
+    static std::unique_ptr<ASTNode> parseVarDeclaration(std::unique_ptr<ASTNode> dataTypeNode);
+    static std::unique_ptr<ASTNode> parseStatement();
+    static std::unique_ptr<ASTNode> parseIfStmt();
+    static std::unique_ptr<ASTNode> parseWhileLoop();
+    static std::unique_ptr<ASTNode> parseForLoop();
+    static std::unique_ptr<ASTNode> parseExprStmt();
+    static std::unique_ptr<ASTNode> parseBlock();
+    static std::unique_ptr<ASTNode> parseDataType();
+    static std::unique_ptr<ASTNode> parseAssignment();
+    static std::unique_ptr<ASTNode> parseEquality();
+    static std::unique_ptr<ASTNode> parseRelational();
+    static std::unique_ptr<ASTNode> parseShift();
+    static std::unique_ptr<ASTNode> parseAdditive();
+    static std::unique_ptr<ASTNode> parseMultaplacative();
+    static std::unique_ptr<ASTNode> parseUnary();
+    static std::unique_ptr<ASTNode> determineFunctionCall();
+    static std::unique_ptr<ASTNode> parsePrimary();
+};
